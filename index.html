@@ -594,7 +594,7 @@ async function onReceiptFile(input){
   try {
     const b64 = await toBase64(file);
     const mtype = file.type||'image/jpeg';
-    const resp = await fetch('https://api.anthropic.com/v1/messages',{
+    const resp = await fetch('https://snaptax-proxy.dralanhiatt.workers.dev',{
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
       body: JSON.stringify({
