@@ -239,9 +239,22 @@ tbody tr:last-child td { border-bottom: none; }
 
   <div class="top-bar">
     <div class="top-logo">Snap<span>Tax</span></div>
-    <div class="user-pill" onclick="logout()">
-      <div class="avatar" id="av"></div>
-      <span id="uname"></span>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button class="btn" style="padding:6px 12px;font-size:12px;" onclick="showApiSettings()">&#9881; API key</button>
+      <div class="user-pill" onclick="logout()">
+        <div class="avatar" id="av"></div>
+        <span id="uname"></span>
+      </div>
+    </div>
+  </div>
+
+  <div id="api-settings-modal" class="hidden" style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;">
+    <div style="font-weight:600;margin-bottom:8px;">Anthropic API key</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:12px;">Required for AI receipt reading. Starts with sk-ant-</div>
+    <input type="password" id="ak-input2" placeholder="sk-ant-...">
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveApiKey2()">Save key</button>
+      <button class="btn" onclick="document.getElementById('api-settings-modal').classList.add('hidden')">Cancel</button>
     </div>
   </div>
 
@@ -525,6 +538,23 @@ function showMain(){
   document.getElementById('e-date').valueAsDate = new Date();
   document.getElementById('m-date').valueAsDate = new Date();
   render(); updateMetrics();
+}
+
+function showApiSettings(){
+  const modal = document.getElementById('api-settings-modal');
+  modal.classList.toggle('hidden');
+  const existing = localStorage.getItem('st_key_'+user.id)||'';
+  if(existing) document.getElementById('ak-input2').value = existing;
+}
+
+function saveApiKey2(){
+  const key = document.getElementById('ak-input2').value.trim();
+  if(!key){alert('Please enter your API key.');return;}
+  apiKey = key;
+  localStorage.setItem('st_key_'+user.id, key);
+  document.getElementById('api-settings-modal').classList.add('hidden');
+  document.getElementById('api-setup').classList.add('hidden');
+  alert('API key saved! Receipt scanning is now enabled.');
 }
 
 function saveKey(){
