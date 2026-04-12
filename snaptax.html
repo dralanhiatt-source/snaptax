@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SnapTax — Business Expense Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root {
+  --bg: #F4F2EE;
+  --surface: #FFFFFF;
+  --border: #E0DDD6;
+  --accent: #1B5E3B;
+  --accent-light: #EAF3EE;
+  --accent-mid: #4A9B6F;
+  --text: #1A1A18;
+  --muted: #7A7870;
+  --warn: #C4712A;
+  --warn-light: #FEF3E8;
+  --blue: #1A56A0;
+  --blue-light: #EBF2FC;
+  --red: #C43A3A;
+  --red-light: #FDE8E8;
+  --sans: 'DM Sans', sans-serif;
+  --mono: 'DM Mono', monospace;
+  --radius: 14px;
+  --radius-sm: 8px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 15px; line-height: 1.6; min-height: 100vh; }
+.app { max-width: 780px; margin: 0 auto; padding: 24px 16px 100px; }
+
+/* LOGIN */
+.login-wrap { display: flex; flex-direction: column; align-items: center; padding: 48px 16px; }
+.logo { font-size: 40px; font-weight: 600; color: var(--accent); letter-spacing: -1px; margin-bottom: 6px; }
+.logo span { color: var(--text); }
+.tagline { color: var(--muted); font-size: 14px; margin-bottom: 40px; }
+.login-card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 32px; width: 100%; max-width: 400px; }
+.login-card h2 { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+.login-card p { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
+
+/* FORM ELEMENTS */
+.field { margin-bottom: 16px; }
+.field label { display: block; font-size: 13px; font-weight: 500; color: var(--muted); margin-bottom: 6px; }
+input[type=text], input[type=number], input[type=date], input[type=password], select, textarea {
+  width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 15px;
+  outline: none; transition: border-color 0.15s, background 0.15s; -webkit-appearance: none;
+}
+input:focus, select:focus { border-color: var(--accent-mid); background: var(--surface); }
+input[readonly] { background: var(--bg); color: var(--muted); }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* BUTTONS */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px 22px; border-radius: var(--radius-sm); border: 1.5px solid var(--border);
+  background: var(--surface); color: var(--text); font-family: var(--sans); font-size: 14px;
+  font-weight: 500; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+.btn:hover { background: var(--bg); }
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--accent); color: white; border-color: var(--accent); }
+.btn-primary:hover { background: #154d30; }
+.btn-big { padding: 16px 28px; font-size: 16px; border-radius: 12px; width: 100%; }
+.btn-blue { background: var(--blue-light); color: var(--blue); border-color: var(--blue); }
+.btn-warn { background: var(--warn-light); color: var(--warn); border-color: var(--warn); }
+.btn-red { background: var(--red-light); color: var(--red); border-color: var(--red); }
+.btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+
+/* HEADER */
+.top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+.top-logo { font-size: 22px; font-weight: 600; color: var(--accent); letter-spacing: -0.5px; }
+.top-logo span { color: var(--text); }
+.user-pill { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 99px; padding: 6px 14px 6px 6px; cursor: pointer; }
+.avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: white; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+.user-pill span { font-size: 13px; font-weight: 500; }
+
+/* METRICS */
+.metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 24px; }
+.metric { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 14px; }
+.metric-label { font-size: 12px; color: var(--muted); margin-bottom: 4px; font-weight: 500; }
+.metric-value { font-size: 24px; font-weight: 600; color: var(--text); line-height: 1.1; }
+.metric-value.green { color: var(--accent); }
+
+/* TABS */
+.tabs { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 4px; margin-bottom: 20px; gap: 4px; }
+.tab { flex: 1; text-align: center; padding: 10px 8px; border-radius: 9px; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--muted); transition: all 0.15s; }
+.tab.active { background: var(--accent); color: white; }
+
+/* CARDS */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; margin-bottom: 14px; }
+.card-title { font-size: 17px; font-weight: 600; margin-bottom: 18px; }
+.card-sub { font-size: 13px; color: var(--muted); margin-top: -12px; margin-bottom: 18px; }
+
+/* RECEIPT ZONE */
+.receipt-zone {
+  border: 2px dashed var(--border); border-radius: 12px;
+  padding: 28px 20px; text-align: center; cursor: pointer;
+  transition: all 0.2s; background: var(--bg); margin-bottom: 4px;
+}
+.receipt-zone:hover { border-color: var(--accent-mid); background: var(--accent-light); }
+.receipt-zone.active { border-color: var(--accent); background: var(--accent-light); }
+.receipt-icon { font-size: 36px; margin-bottom: 8px; }
+.receipt-zone h3 { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+.receipt-zone p { font-size: 13px; color: var(--muted); }
+
+/* SCANNING */
+.scanning { display: none; align-items: center; gap: 12px; padding: 14px 16px; background: var(--warn-light); border: 1px solid var(--warn); border-radius: var(--radius-sm); margin: 10px 0; color: var(--warn); font-size: 14px; font-weight: 500; }
+.scanning.show { display: flex; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner { width: 18px; height: 18px; border: 2px solid var(--warn); border-top-color: transparent; border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
+
+/* SCAN RESULT */
+.scan-result { display: none; background: var(--accent-light); border: 1.5px solid var(--accent-mid); border-radius: 12px; padding: 18px; margin: 10px 0; }
+.scan-result.show { display: block; }
+.scan-result-head { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 8px; }
+.scan-vendor { font-size: 16px; font-weight: 600; margin-bottom: 2px; }
+.scan-amount { font-size: 28px; font-weight: 700; color: var(--accent); font-family: var(--mono); }
+.cat-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 14px 0 8px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { padding: 8px 16px; border: 1.5px solid var(--border); border-radius: 99px; font-size: 13px; cursor: pointer; background: white; color: var(--text); transition: all 0.15s; font-weight: 500; }
+.chip:hover { border-color: var(--accent-mid); }
+.chip.selected { background: var(--accent); color: white; border-color: var(--accent); }
+.voice-row { display: flex; align-items: center; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
+.voice-btn { display: flex; align-items: center; gap: 8px; padding: 9px 18px; border: 1.5px solid var(--accent-mid); border-radius: 99px; background: white; color: var(--accent); cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.15s; }
+.voice-btn:hover, .voice-btn.on { background: var(--accent); color: white; }
+.voice-btn.on { animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.7} }
+.voice-status { font-size: 12px; color: var(--muted); }
+
+/* RECEIPT THUMB */
+.receipt-thumb-wrap { position: relative; display: inline-block; }
+.receipt-thumb { width: 44px; height: 44px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); cursor: pointer; }
+.no-receipt { width: 44px; height: 44px; border-radius: 6px; border: 1px dashed var(--border); display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 18px; }
+
+/* TABLE */
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th { text-align: left; color: var(--muted); font-weight: 600; padding: 8px 6px; border-bottom: 1.5px solid var(--border); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+tbody td { padding: 12px 6px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tbody tr:last-child td { border-bottom: none; }
+.tag { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; background: var(--accent-light); color: var(--accent); white-space: nowrap; }
+.tag-warn { background: var(--warn-light); color: var(--warn); }
+.empty-msg { text-align: center; color: var(--muted); padding: 36px 0; font-size: 14px; }
+.del-btn { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 18px; padding: 0 4px; line-height: 1; }
+.del-btn:hover { color: var(--red); }
+
+/* LIGHTBOX */
+.lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+.lightbox.show { display: flex; }
+.lightbox img { max-width: 100%; max-height: 90vh; border-radius: 10px; }
+.lightbox-close { position: absolute; top: 20px; right: 24px; color: white; font-size: 32px; cursor: pointer; line-height: 1; }
+
+/* TAX BANNER */
+.tax-banner { background: var(--warn-light); border: 1.5px solid var(--warn); border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; display: flex; align-items: flex-start; gap: 14px; }
+.tax-banner-icon { font-size: 24px; flex-shrink: 0; }
+.tax-banner h3 { font-size: 15px; font-weight: 600; color: var(--warn); margin-bottom: 2px; }
+.tax-banner p { font-size: 13px; color: var(--text); }
+
+/* API SETUP */
+.api-setup { background: var(--blue-light); border: 1px solid var(--blue); border-radius: 10px; padding: 14px 16px; margin-bottom: 16px; font-size: 13px; }
+.api-setup p { color: var(--blue); font-weight: 500; margin-bottom: 8px; }
+.api-row { display: flex; gap: 8px; align-items: center; }
+.api-row input { flex: 1; font-size: 13px; padding: 8px 12px; }
+
+/* SUMMARY */
+.summary-row { display: flex; justify-content: space-between; padding: 11px 6px; border-bottom: 1px solid var(--border); font-size: 14px; }
+.summary-total-row { display: flex; justify-content: space-between; padding: 16px 6px 4px; font-size: 17px; font-weight: 700; border-top: 2px solid var(--text); margin-top: 4px; }
+.deductible { color: var(--accent); font-weight: 600; }
+
+/* RECEIPT PREVIEW IN FORM */
+.form-receipt-preview { display: none; margin-top: 10px; }
+.form-receipt-preview.show { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: var(--accent-light); border-radius: var(--radius-sm); border: 1px solid var(--accent-mid); }
+.form-receipt-preview img { width: 52px; height: 52px; object-fit: cover; border-radius: 6px; }
+.form-receipt-preview span { font-size: 13px; color: var(--accent); font-weight: 500; }
+
+/* HIDDEN */
+.hidden { display: none !important; }
+
+/* DOWNLOAD HINT */
+.dl-hint { font-size: 12px; color: var(--muted); margin-top: 8px; }
+
+@media (max-width: 540px) {
+  .metrics { grid-template-columns: 1fr 1fr; }
+  .grid2 { grid-template-columns: 1fr; }
+  .metric-value { font-size: 20px; }
+  .scan-amount { font-size: 24px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <div class="lightbox-close">×</div>
+  <img id="lightbox-img" src="" alt="Receipt">
+</div>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-wrap">
+    <div class="logo">Snap<span>Tax</span></div>
+    <div class="tagline">Simple expense tracking for small business owners</div>
+    <div class="login-card">
+      <h2>Get started</h2>
+      <p>Your data stays on your device — private and secure</p>
+      <div class="field">
+        <label>Your name</label>
+        <input type="text" id="ln-name" placeholder="Jane Smith">
+      </div>
+      <div class="field">
+        <label>Business name</label>
+        <input type="text" id="ln-biz" placeholder="Smith Consulting">
+      </div>
+      <div class="field">
+        <label>Business type</label>
+        <select id="ln-type">
+          <option value="">Select your type...</option>
+          <option>Consulting / Coaching</option>
+          <option>Healthcare / Wellness</option>
+          <option>Retail / E-commerce</option>
+          <option>Construction / Trades</option>
+          <option>Real Estate</option>
+          <option>Food &amp; Beverage</option>
+          <option>Creative / Media</option>
+          <option>Transportation / Delivery</option>
+          <option>Professional Services</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <button class="btn btn-primary btn-big" onclick="doLogin()" style="margin-top:8px;">Start tracking →</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="main-screen" class="hidden">
+
+  <div class="top-bar">
+    <div class="top-logo">Snap<span>Tax</span></div>
+    <div class="user-pill" onclick="logout()">
+      <div class="avatar" id="av"></div>
+      <span id="uname"></span>
+    </div>
+  </div>
+
+  <div id="tax-banner" class="tax-banner hidden">
+    <div class="tax-banner-icon">📅</div>
+    <div>
+      <h3>Tax season reminder</h3>
+      <p>January 31 is approaching. Download your expense report and CSV now to share with your accountant or import into TurboTax.</p>
+    </div>
+  </div>
+
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-label">Total expenses</div>
+      <div class="metric-value" id="m-exp">$0</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Mileage deduction</div>
+      <div class="metric-value green" id="m-mile">$0</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Est. tax savings</div>
+      <div class="metric-value green" id="m-save">$0</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" id="t-expenses" onclick="switchTab('expenses')">Expenses</div>
+    <div class="tab" id="t-mileage" onclick="switchTab('mileage')">Mileage</div>
+    <div class="tab" id="t-summary" onclick="switchTab('summary')">Reports</div>
+  </div>
+
+  <!-- EXPENSES TAB -->
+  <div id="pane-expenses">
+
+    <div class="api-setup" id="api-setup">
+      <p>&#128273; Enable AI receipt reading (one-time setup)</p>
+      <div class="api-row">
+        <input type="password" id="ak-input" placeholder="Anthropic API key: sk-ant-...">
+        <button class="btn btn-blue" style="padding:8px 16px; font-size:13px;" onclick="saveKey()">Save</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">&#128247; Snap or upload a receipt</div>
+      <div class="card-sub">Works for paper receipts and digital screenshots</div>
+
+      <div class="receipt-zone" id="rzone" onclick="document.getElementById('rfile').click()">
+        <div class="receipt-icon">&#128444;&#65039;</div>
+        <h3>Tap to add receipt</h3>
+        <p>Take a photo or upload a screenshot — AI will fill in the details</p>
+        <input type="file" id="rfile" accept="image/*" capture="environment" class="hidden" onchange="onReceiptFile(this)">
+      </div>
+
+      <div class="scanning" id="scanning"><div class="spinner"></div>Reading your receipt with AI...</div>
+
+      <div class="scan-result" id="scan-result">
+        <div class="scan-result-head">&#10003; Receipt read successfully</div>
+        <div class="scan-vendor" id="sr-vendor"></div>
+        <div class="scan-amount" id="sr-amount"></div>
+        <div class="cat-label">Choose the category (tap or say it)</div>
+        <div class="chips" id="sr-chips"></div>
+        <div class="voice-row">
+          <button class="voice-btn" id="vbtn" onclick="doVoice()">&#127908; Say category</button>
+          <div class="voice-status" id="vstatus"></div>
+        </div>
+      </div>
+
+      <div class="form-receipt-preview" id="form-preview">
+        <img id="form-preview-img" src="" alt="">
+        <span id="form-preview-name">Receipt attached</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Or enter manually</div>
+      <div class="grid2">
+        <div class="field">
+          <label>Date</label>
+          <input type="date" id="e-date">
+        </div>
+        <div class="field">
+          <label>Amount ($)</label>
+          <input type="number" id="e-amt" placeholder="0.00" step="0.01">
+        </div>
+      </div>
+      <div class="field">
+        <label>Vendor / who you paid</label>
+        <input type="text" id="e-desc" placeholder="e.g. Office Depot, Amazon, AT&amp;T">
+      </div>
+      <div class="field">
+        <label>Category</label>
+        <select id="e-cat">
+          <option value="">Select category...</option>
+          <option>Advertising &amp; marketing</option>
+          <option>Office supplies</option>
+          <option>Software &amp; subscriptions</option>
+          <option>Phone &amp; internet</option>
+          <option>Professional services</option>
+          <option>Education &amp; training</option>
+          <option>Meals (50% deductible)</option>
+          <option>Travel &amp; lodging</option>
+          <option>Equipment &amp; tools</option>
+          <option>Insurance</option>
+          <option>Rent &amp; utilities</option>
+          <option>Bank &amp; finance fees</option>
+          <option>Vehicle expenses</option>
+          <option>Repairs &amp; maintenance</option>
+          <option>Inventory / cost of goods</option>
+          <option>Wages &amp; contractors</option>
+          <option>Taxes &amp; licenses</option>
+          <option>Health insurance (self-employed)</option>
+          <option>Retirement contributions</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="addExpense()">&#43; Add expense</button>
+        <button class="btn" onclick="clearForm()">Clear</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Your expense log</div>
+      <table>
+        <thead><tr><th>Receipt</th><th>Date</th><th>Vendor</th><th>Category</th><th style="text-align:right">Amount</th><th></th></tr></thead>
+        <tbody id="exp-tbody"><tr><td colspan="6" class="empty-msg">No expenses yet — snap your first receipt above</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MILEAGE TAB -->
+  <div id="pane-mileage" class="hidden">
+    <div class="card">
+      <div class="card-title">&#128664; Log a business trip</div>
+      <div class="card-sub">IRS standard rate: $0.70 per mile for 2025</div>
+      <div class="grid2">
+        <div class="field">
+          <label>Date</label>
+          <input type="date" id="m-date">
+        </div>
+        <div class="field">
+          <label>Trip purpose</label>
+          <select id="m-purpose">
+            <option>Client meeting</option>
+            <option>Supply run</option>
+            <option>Job site visit</option>
+            <option>Bank / financial errand</option>
+            <option>Conference or training</option>
+            <option>Delivery</option>
+            <option>Medical (business-related)</option>
+            <option>Other business</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Starting point</label>
+        <input type="text" id="m-from" placeholder="City, address, or landmark">
+      </div>
+      <div class="field">
+        <label>Destination</label>
+        <input type="text" id="m-to" placeholder="City, address, or landmark">
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label>Miles driven</label>
+          <input type="number" id="m-miles" placeholder="0.0" step="0.1" oninput="calcMile()">
+        </div>
+        <div class="field">
+          <label>Your deduction</label>
+          <input type="text" id="m-ded" readonly placeholder="$0.00">
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="addTrip()">&#43; Log this trip</button>
+        <button class="btn" onclick="clearMile()">Clear</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Mileage log</div>
+      <table>
+        <thead><tr><th>Date</th><th>Purpose</th><th>Route</th><th style="text-align:right">Miles</th><th style="text-align:right">Deduction</th><th></th></tr></thead>
+        <tbody id="mile-tbody"><tr><td colspan="6" class="empty-msg">No trips logged yet</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SUMMARY / REPORTS TAB -->
+  <div id="pane-summary" class="hidden">
+
+    <div class="card">
+      <div class="card-title">&#128202; Deduction summary — 2025</div>
+      <div id="sum-body">
+        <div class="empty-msg">Add expenses to see your summary</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">&#128196; Export for your accountant</div>
+
+      <div style="background:var(--accent-light); border-radius:10px; padding:16px; margin-bottom:18px;">
+        <div style="font-weight:600; margin-bottom:4px; color:var(--accent);">TurboTax / tax software</div>
+        <div style="font-size:13px; color:var(--text); margin-bottom:12px;">Download a CSV file formatted for Schedule C. Open TurboTax, go to Business Expenses, click "Import from spreadsheet" and select this file.</div>
+        <button class="btn btn-primary" onclick="exportCSV()">&#8659; Download TurboTax CSV</button>
+      </div>
+
+      <div style="background:var(--blue-light); border-radius:10px; padding:16px; margin-bottom:18px;">
+        <div style="font-weight:600; margin-bottom:4px; color:var(--blue);">PDF report to print or email</div>
+        <div style="font-size:13px; color:var(--text); margin-bottom:12px;">A clean summary of all expenses and mileage with totals — organized by category. Share with your accountant or keep for your records.</div>
+        <button class="btn btn-blue" onclick="exportPDF()">&#8659; Download PDF report</button>
+      </div>
+
+      <div style="background:var(--warn-light); border-radius:10px; padding:16px;">
+        <div style="font-weight:600; margin-bottom:4px; color:var(--warn);">Download all receipt photos</div>
+        <div style="font-size:13px; color:var(--text); margin-bottom:12px;">Save each receipt to your phone with the name format: TaxReceipt_2025_[Category]_[Vendor]_[Date]. Search "TaxReceipt" in your Photos app to find them all.</div>
+        <button class="btn btn-warn" onclick="downloadAllReceipts()">&#8659; Download all receipts</button>
+        <div class="dl-hint" id="dl-count"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="color:var(--red); font-weight:600; margin-bottom:8px;">Danger zone</div>
+      <div style="font-size:13px; color:var(--muted); margin-bottom:14px;">Permanently delete all your data from this device.</div>
+      <button class="btn btn-red" onclick="clearAll()">Delete all my data</button>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+const RATE = 0.70;
+const CATS = ['Advertising & marketing','Office supplies','Software & subscriptions','Phone & internet','Professional services','Education & training','Meals (50% deductible)','Travel & lodging','Equipment & tools','Insurance','Rent & utilities','Bank & finance fees','Vehicle expenses','Repairs & maintenance','Inventory / cost of goods','Wages & contractors','Taxes & licenses','Health insurance (self-employed)','Retirement contributions','Other'];
+
+let user = null, expenses = [], trips = [], apiKey = '', currentReceiptData = null;
+
+function sk(t){ return 'st_'+user.id+'_'+t; }
+
+function save(){
+  const store = expenses.map(e => {
+    const s = {...e};
+    return s;
+  });
+  localStorage.setItem(sk('exp'), JSON.stringify(store));
+  localStorage.setItem(sk('tri'), JSON.stringify(trips));
+}
+
+function load(){
+  expenses = JSON.parse(localStorage.getItem(sk('exp'))||'[]');
+  trips = JSON.parse(localStorage.getItem(sk('tri'))||'[]');
+}
+
+function doLogin(){
+  const name = document.getElementById('ln-name').value.trim();
+  const biz = document.getElementById('ln-biz').value.trim();
+  const type = document.getElementById('ln-type').value;
+  if(!name||!biz){alert('Please enter your name and business name.');return;}
+  const id = btoa(name+biz).replace(/[^a-z0-9]/gi,'').substring(0,16);
+  user = {name,biz,type,id};
+  localStorage.setItem('st_user', JSON.stringify(user));
+  apiKey = localStorage.getItem('st_key_'+id)||'';
+  load(); showMain();
+}
+
+function logout(){
+  if(!confirm('Sign out? Your data is saved and will be here when you return.'))return;
+  user=null; expenses=[]; trips=[];
+  document.getElementById('main-screen').classList.add('hidden');
+  document.getElementById('login-screen').classList.remove('hidden');
+}
+
+function showMain(){
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('main-screen').classList.remove('hidden');
+  const ini = user.name.split(' ').map(w=>w[0]).join('').toUpperCase().substring(0,2);
+  document.getElementById('av').textContent = ini;
+  document.getElementById('uname').textContent = user.name.split(' ')[0];
+  if(apiKey) document.getElementById('api-setup').classList.add('hidden');
+  checkTaxSeason();
+  document.getElementById('e-date').valueAsDate = new Date();
+  document.getElementById('m-date').valueAsDate = new Date();
+  render(); updateMetrics();
+}
+
+function saveKey(){
+  apiKey = document.getElementById('ak-input').value.trim();
+  if(!apiKey)return;
+  localStorage.setItem('st_key_'+user.id, apiKey);
+  document.getElementById('api-setup').classList.add('hidden');
+}
+
+function checkTaxSeason(){
+  const now = new Date();
+  const m = now.getMonth(), d = now.getDate();
+  if((m===0 && d >= 15)||(m===1 && d <= 15)){
+    document.getElementById('tax-banner').classList.remove('hidden');
+  }
+}
+
+function switchTab(t){
+  ['expenses','mileage','summary'].forEach(id=>{
+    document.getElementById('pane-'+id).classList.add('hidden');
+    document.getElementById('t-'+id).classList.remove('active');
+  });
+  document.getElementById('pane-'+t).classList.remove('hidden');
+  document.getElementById('t-'+t).classList.add('active');
+  if(t==='summary') renderSummary();
+}
+
+function toBase64(file){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=()=>res(r.result.split(',')[1]);
+    r.onerror=rej;
+    r.readAsDataURL(file);
+  });
+}
+
+function toDataURL(file){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=()=>res(r.result);
+    r.onerror=rej;
+    r.readAsDataURL(file);
+  });
+}
+
+async function onReceiptFile(input){
+  if(!input.files||!input.files[0])return;
+  const file = input.files[0];
+  const dataURL = await toDataURL(file);
+  currentReceiptData = {dataURL, fileName: file.name};
+
+  const prev = document.getElementById('form-preview');
+  document.getElementById('form-preview-img').src = dataURL;
+  document.getElementById('form-preview-name').textContent = file.name;
+  prev.classList.add('show');
+
+  document.getElementById('rzone').classList.add('active');
+
+  if(!apiKey){
+    alert('Add your Anthropic API key above to enable automatic reading. You can still fill in the details manually below.');
+    return;
+  }
+
+  document.getElementById('scanning').classList.add('show');
+  document.getElementById('scan-result').classList.remove('show');
+
+  try {
+    const b64 = await toBase64(file);
+    const mtype = file.type||'image/jpeg';
+    const resp = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+      body: JSON.stringify({
+        model:'claude-opus-4-20250514',
+        max_tokens:500,
+        messages:[{role:'user',content:[
+          {type:'image',source:{type:'base64',media_type:mtype,data:b64}},
+          {type:'text',text:'Read this receipt or invoice carefully. Respond ONLY with valid JSON, no markdown, no extra text: {"vendor":"business name","date":"YYYY-MM-DD or empty string","amount":"number only no currency symbol","description":"brief 3-5 word description of what was purchased","suggestedCategory":"pick exactly one from this list: Advertising & marketing, Office supplies, Software & subscriptions, Phone & internet, Professional services, Education & training, Meals (50% deductible), Travel & lodging, Equipment & tools, Insurance, Rent & utilities, Bank & finance fees, Vehicle expenses, Repairs & maintenance, Inventory / cost of goods, Wages & contractors, Taxes & licenses, Health insurance (self-employed), Retirement contributions, Other","otherCategories":["2 other plausible categories from the same list"]}'}
+        ]}]
+      })
+    });
+    const data = await resp.json();
+    document.getElementById('scanning').classList.remove('show');
+    if(data.error){alert('API error: '+data.error.message);return;}
+    const raw = data.content[0].text.trim().replace(/```json|```/g,'').trim();
+    const p = JSON.parse(raw);
+
+    if(p.date) document.getElementById('e-date').value = p.date;
+    if(p.amount) document.getElementById('e-amt').value = p.amount;
+    if(p.vendor) document.getElementById('e-desc').value = p.vendor+(p.description?' — '+p.description:'');
+    if(p.suggestedCategory) document.getElementById('e-cat').value = p.suggestedCategory;
+
+    document.getElementById('sr-vendor').textContent = p.vendor||'';
+    document.getElementById('sr-amount').textContent = p.amount ? '$'+parseFloat(p.amount).toFixed(2) : '';
+
+    const allCats = [p.suggestedCategory,...(p.otherCategories||[])].filter(Boolean);
+    document.getElementById('sr-chips').innerHTML = allCats.map(c=>
+      `<div class="chip${c===p.suggestedCategory?' selected':''}" onclick="pickCat('${c.replace(/'/g,"\\'")}',this)">${c}</div>`
+    ).join('');
+
+    document.getElementById('scan-result').classList.add('show');
+
+  } catch(e){
+    document.getElementById('scanning').classList.remove('show');
+    console.error(e);
+    alert('Could not read receipt automatically. Please fill in the details below manually.');
+  }
+}
+
+function pickCat(cat, el){
+  document.getElementById('e-cat').value = cat;
+  document.querySelectorAll('#sr-chips .chip').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function doVoice(){
+  const SR = window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){alert('Voice not supported in this browser. Please use Chrome.');return;}
+  const rec = new SR();
+  rec.lang='en-US'; rec.interimResults=false; rec.maxAlternatives=3;
+  const btn=document.getElementById('vbtn'), st=document.getElementById('vstatus');
+  btn.classList.add('on'); btn.textContent='&#127908; Listening...';
+  st.textContent='Say the category name clearly';
+  rec.onresult=(e)=>{
+    const said=e.results[0][0].transcript.toLowerCase();
+    btn.classList.remove('on'); btn.textContent='&#127908; Say category';
+    let best=null,score=0;
+    CATS.forEach(c=>{
+      const words=c.toLowerCase().split(/[\s&\/,()]+/);
+      let s=0;
+      words.forEach(w=>{if(w.length>3&&said.includes(w))s+=2;});
+      said.split(/\s+/).forEach(w=>{if(w.length>3&&c.toLowerCase().includes(w))s+=1;});
+      if(s>score){score=s;best=c;}
+    });
+    if(best&&score>0){
+      document.getElementById('e-cat').value=best;
+      document.querySelectorAll('#sr-chips .chip').forEach(c=>c.classList.toggle('selected',c.textContent===best));
+      st.textContent='Selected: '+best;
+    } else {
+      st.textContent='Not recognized — tap a category above';
+    }
+  };
+  rec.onerror=()=>{btn.classList.remove('on');btn.textContent='&#127908; Say category';st.textContent='Try again or tap a category';};
+  rec.start();
+}
+
+function addExpense(){
+  const date=document.getElementById('e-date').value;
+  const amt=parseFloat(document.getElementById('e-amt').value);
+  const cat=document.getElementById('e-cat').value;
+  const desc=document.getElementById('e-desc').value;
+  if(!date||!amt||!cat){alert('Please fill in the date, amount, and category.');return;}
+  expenses.unshift({id:Date.now(),date,amount:amt,category:cat,desc,receipt:currentReceiptData?currentReceiptData.dataURL:null});
+  currentReceiptData=null;
+  save(); renderExpenses(); updateMetrics(); clearForm();
+}
+
+function addTrip(){
+  const date=document.getElementById('m-date').value;
+  const purpose=document.getElementById('m-purpose').value;
+  const from=document.getElementById('m-from').value;
+  const to=document.getElementById('m-to').value;
+  const miles=parseFloat(document.getElementById('m-miles').value);
+  if(!date||!miles){alert('Please fill in the date and miles.');return;}
+  trips.unshift({id:Date.now(),date,purpose,from,to,miles,deduction:parseFloat((miles*RATE).toFixed(2))});
+  save(); renderMileage(); updateMetrics(); clearMile();
+}
+
+function delExp(id){expenses=expenses.filter(e=>e.id!==id);save();renderExpenses();updateMetrics();}
+function delTrip(id){trips=trips.filter(t=>t.id!==id);save();renderMileage();updateMetrics();}
+
+function clearForm(){
+  ['e-amt','e-desc'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('e-cat').value='';
+  document.getElementById('rzone').classList.remove('active');
+  document.getElementById('scan-result').classList.remove('show');
+  document.getElementById('form-preview').classList.remove('show');
+  document.getElementById('rfile').value='';
+  currentReceiptData=null;
+}
+function clearMile(){
+  ['m-from','m-to','m-miles','m-ded'].forEach(id=>document.getElementById(id).value='');
+}
+function calcMile(){
+  const m=parseFloat(document.getElementById('m-miles').value)||0;
+  document.getElementById('m-ded').value=m>0?'$'+(m*RATE).toFixed(2):'';
+}
+
+function renderExpenses(){
+  const tb=document.getElementById('exp-tbody');
+  if(!expenses.length){tb.innerHTML='<tr><td colspan="6" class="empty-msg">No expenses yet — snap your first receipt above</td></tr>';return;}
+  tb.innerHTML=expenses.map(e=>`
+    <tr>
+      <td>${e.receipt?`<img src="${e.receipt}" class="receipt-thumb" onclick="openLightbox('${e.receipt}')" title="View receipt">`:`<div class="no-receipt" title="No receipt">&#128444;</div>`}</td>
+      <td style="white-space:nowrap;font-size:13px;">${e.date}</td>
+      <td style="font-size:13px;color:var(--muted);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e.desc||'—'}</td>
+      <td><span class="tag${e.category.includes('Meals')?' tag-warn':''}">${e.category}</span></td>
+      <td style="text-align:right;font-weight:600;white-space:nowrap;">$${e.amount.toFixed(2)}</td>
+      <td><button class="del-btn" onclick="delExp(${e.id})">×</button></td>
+    </tr>`).join('');
+}
+
+function renderMileage(){
+  const tb=document.getElementById('mile-tbody');
+  if(!trips.length){tb.innerHTML='<tr><td colspan="6" class="empty-msg">No trips yet</td></tr>';return;}
+  tb.innerHTML=trips.map(t=>`
+    <tr>
+      <td style="white-space:nowrap;font-size:13px;">${t.date}</td>
+      <td style="font-size:13px;">${t.purpose}</td>
+      <td style="font-size:12px;color:var(--muted);">${t.from&&t.to?t.from+' → '+t.to:'—'}</td>
+      <td style="text-align:right;font-size:13px;">${t.miles.toFixed(1)}</td>
+      <td style="text-align:right;font-weight:600;color:var(--accent);white-space:nowrap;">$${t.deduction.toFixed(2)}</td>
+      <td><button class="del-btn" onclick="delTrip(${t.id})">×</button></td>
+    </tr>`).join('');
+}
+
+function renderSummary(){
+  const cats={};
+  expenses.forEach(e=>{
+    if(!cats[e.category])cats[e.category]={spent:0,deductible:0};
+    const mult=e.category.includes('Meals')?0.5:1;
+    cats[e.category].spent+=e.amount;
+    cats[e.category].deductible+=e.amount*mult;
+  });
+  const mileTotal=trips.reduce((s,t)=>s+t.deduction,0);
+  const milesMi=trips.reduce((s,t)=>s+t.miles,0);
+  let html='';
+  const entries=Object.entries(cats);
+  if(!entries.length&&!mileTotal){document.getElementById('sum-body').innerHTML='<div class="empty-msg">Add expenses to see your summary</div>';return;}
+  entries.sort((a,b)=>b[1].deductible-a[1].deductible).forEach(([cat,v])=>{
+    html+=`<div class="summary-row"><span><span class="tag${cat.includes('Meals')?' tag-warn':''}">${cat}</span></span><span class="deductible">$${v.deductible.toFixed(2)}<span style="font-size:12px;color:var(--muted);font-weight:400;"> of $${v.spent.toFixed(2)}</span></span></div>`;
+  });
+  if(mileTotal){
+    html+=`<div class="summary-row"><span><span class="tag tag-warn">Mileage — ${milesMi.toFixed(1)} mi</span></span><span class="deductible">$${mileTotal.toFixed(2)}</span></div>`;
+  }
+  const totalDeduct=entries.reduce((s,[,v])=>s+v.deductible,0)+mileTotal;
+  html+=`<div class="summary-total-row"><span>Total deductions</span><span style="color:var(--accent);">$${totalDeduct.toFixed(2)}</span></div>`;
+  html+=`<div style="font-size:12px;color:var(--muted);margin-top:10px;">Est. tax savings at 25% rate: <strong style="color:var(--accent);">$${(totalDeduct*0.25).toFixed(2)}</strong></div>`;
+  document.getElementById('sum-body').innerHTML=html;
+
+  const rc=expenses.filter(e=>e.receipt).length;
+  document.getElementById('dl-count').textContent=rc>0?rc+' receipt photo'+(rc!==1?'s':')+' available to download':'No receipt photos saved yet';
+}
+
+function updateMetrics(){
+  const te=expenses.reduce((s,e)=>s+e.amount,0);
+  const tm=trips.reduce((s,t)=>s+t.deduction,0);
+  const td=expenses.reduce((s,e)=>s+e.amount*(e.category.includes('Meals')?0.5:1),0)+tm;
+  document.getElementById('m-exp').textContent='$'+te.toFixed(2);
+  document.getElementById('m-mile').textContent='$'+tm.toFixed(2);
+  document.getElementById('m-save').textContent='$'+(td*0.25).toFixed(2);
+}
+
+function render(){renderExpenses();renderMileage();}
+
+function openLightbox(src){
+  document.getElementById('lightbox-img').src=src;
+  document.getElementById('lightbox').classList.add('show');
+}
+function closeLightbox(){
+  document.getElementById('lightbox').classList.remove('show');
+}
+
+function exportCSV(){
+  const biz=(user?user.biz:'Business').replace(/\s+/g,'-');
+  let csv='Schedule C Category,Date,Vendor/Description,Amount,Deductible Amount,Notes\n';
+  expenses.forEach(e=>{
+    const mult=e.category.includes('Meals')?0.5:1;
+    csv+=`"${e.category}","${e.date}","${(e.desc||'').replace(/"/g,'""')}",${e.amount.toFixed(2)},${(e.amount*mult).toFixed(2)},\n`;
+  });
+  if(trips.length){
+    csv+='\nMileage Log\nDate,Purpose,From,To,Miles,Deduction\n';
+    trips.forEach(t=>{
+      csv+=`"${t.date}","${t.purpose}","${t.from||''}","${t.to||''}",${t.miles.toFixed(1)},${t.deduction.toFixed(2)}\n`;
+    });
+  }
+  const blob=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=biz+'-TurboTax-2025.csv';
+  a.click();
+}
+
+function exportPDF(){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:'pt',format:'letter'});
+  const biz=user?user.biz:'Business';
+  const name=user?user.name:'Owner';
+  let y=60;
+
+  doc.setFillColor(27,94,59);
+  doc.rect(0,0,612,50,'F');
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(22);doc.setFont('helvetica','bold');
+  doc.text('SnapTax — Business Expense Report',40,33);
+
+  doc.setTextColor(30,30,30);
+  doc.setFontSize(13);doc.setFont('helvetica','normal');
+  doc.text(biz+' · '+name,40,y);y+=16;
+  doc.text('Tax Year 2025 · Generated '+new Date().toLocaleDateString(),40,y);y+=30;
+
+  const cats={};
+  expenses.forEach(e=>{
+    if(!cats[e.category])cats[e.category]={spent:0,deductible:0,items:[]};
+    const mult=e.category.includes('Meals')?0.5:1;
+    cats[e.category].spent+=e.amount;
+    cats[e.category].deductible+=e.amount*mult;
+    cats[e.category].items.push(e);
+  });
+
+  doc.setFontSize(14);doc.setFont('helvetica','bold');
+  doc.text('Expense Summary by Category',40,y);y+=20;
+
+  doc.setFillColor(234,243,238);
+  doc.rect(40,y-14,532,18,'F');
+  doc.setFontSize(10);doc.setFont('helvetica','bold');
+  doc.text('Category',44,y-2);
+  doc.text('Total Spent',350,y-2);
+  doc.text('Deductible',460,y-2);
+  y+=10;
+
+  doc.setFont('helvetica','normal');doc.setFontSize(10);
+  Object.entries(cats).sort((a,b)=>b[1].deductible-a[1].deductible).forEach(([cat,v])=>{
+    if(y>700){doc.addPage();y=60;}
+    doc.text(cat,44,y);
+    doc.text('$'+v.spent.toFixed(2),350,y);
+    doc.setTextColor(27,94,59);doc.setFont('helvetica','bold');
+    doc.text('$'+v.deductible.toFixed(2),460,y);
+    doc.setTextColor(30,30,30);doc.setFont('helvetica','normal');
+    y+=18;
+  });
+
+  const mileTotal=trips.reduce((s,t)=>s+t.deduction,0);
+  const milesMi=trips.reduce((s,t)=>s+t.miles,0);
+  if(mileTotal){
+    doc.text('Mileage ('+milesMi.toFixed(1)+' mi @ $0.70)',44,y);
+    doc.text('—',350,y);
+    doc.setTextColor(27,94,59);doc.setFont('helvetica','bold');
+    doc.text('$'+mileTotal.toFixed(2),460,y);
+    doc.setTextColor(30,30,30);doc.setFont('helvetica','normal');
+    y+=18;
+  }
+
+  y+=6;
+  doc.setDrawColor(30,30,30);doc.setLineWidth(1.5);
+  doc.line(40,y,572,y);y+=18;
+  const totalD=Object.values(cats).reduce((s,v)=>s+v.deductible,0)+mileTotal;
+  doc.setFont('helvetica','bold');doc.setFontSize(12);
+  doc.text('TOTAL DEDUCTIONS',44,y);
+  doc.setTextColor(27,94,59);
+  doc.text('$'+totalD.toFixed(2),460,y);
+  doc.setTextColor(30,30,30);y+=30;
+
+  if(trips.length){
+    if(y>650){doc.addPage();y=60;}
+    doc.setFontSize(13);doc.setFont('helvetica','bold');
+    doc.text('Mileage Log',40,y);y+=20;
+    doc.setFontSize(9);doc.setFont('helvetica','bold');
+    doc.setFillColor(234,243,238);doc.rect(40,y-12,532,16,'F');
+    doc.text('Date',44,y-2);doc.text('Purpose',130,y-2);doc.text('Route',280,y-2);doc.text('Miles',450,y-2);doc.text('Deduction',490,y-2);
+    y+=10;doc.setFont('helvetica','normal');
+    trips.forEach(t=>{
+      if(y>700){doc.addPage();y=60;}
+      doc.text(t.date,44,y);doc.text(t.purpose.substring(0,22),130,y);
+      const route=t.from&&t.to?(t.from+' → '+t.to).substring(0,30):'';
+      doc.text(route,280,y);doc.text(t.miles.toFixed(1),450,y);
+      doc.setTextColor(27,94,59);doc.setFont('helvetica','bold');
+      doc.text('$'+t.deduction.toFixed(2),490,y);
+      doc.setTextColor(30,30,30);doc.setFont('helvetica','normal');
+      y+=16;
+    });
+  }
+
+  const pn=doc.getNumberOfPages();
+  for(let i=1;i<=pn;i++){
+    doc.setPage(i);doc.setFontSize(9);doc.setTextColor(150,150,150);
+    doc.text('SnapTax · '+biz+' · Page '+i+' of '+pn,40,780);
+    doc.text('Keep this document with your tax records',400,780);
+  }
+
+  doc.save(biz.replace(/\s+/g,'-')+'-expense-report-2025.pdf');
+}
+
+async function downloadAllReceipts(){
+  const withReceipts=expenses.filter(e=>e.receipt);
+  if(!withReceipts.length){alert('No receipt photos saved yet. Attach receipts when adding expenses.');return;}
+  for(let i=0;i<withReceipts.length;i++){
+    const e=withReceipts[i];
+    const cat=e.category.replace(/[^a-zA-Z0-9]/g,'_').substring(0,20);
+    const vendor=(e.desc||'Receipt').replace(/[^a-zA-Z0-9]/g,'_').substring(0,20);
+    const filename=`TaxReceipt_2025_${cat}_${vendor}_${e.date}.jpg`;
+    const a=document.createElement('a');
+    a.href=e.receipt;
+    a.download=filename;
+    a.click();
+    await new Promise(r=>setTimeout(r,400));
+  }
+}
+
+function clearAll(){
+  if(!confirm('This will permanently delete ALL your expenses, mileage, and receipts. Are you sure?'))return;
+  expenses=[];trips=[];save();render();updateMetrics();
+  document.getElementById('sum-body').innerHTML='<div class="empty-msg">Add expenses to see your summary</div>';
+}
+
+const saved=localStorage.getItem('st_user');
+if(saved){try{user=JSON.parse(saved);apiKey=localStorage.getItem('st_key_'+user.id)||'';load();showMain();}catch(e){}}
+</script>
+</body>
+</html>
