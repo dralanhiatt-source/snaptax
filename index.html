@@ -500,7 +500,7 @@ function doLogin(){
   const biz = document.getElementById('ln-biz').value.trim();
   const type = document.getElementById('ln-type').value;
   if(!name||!biz){alert('Please enter your name and business name.');return;}
-  const id = btoa(name+biz).replace(/[^a-z0-9]/gi,'').substring(0,16);
+  const id = (name+biz).toLowerCase().replace(/[^a-z0-9]/g,'').substring(0,16) || 'user' + Date.now().toString().slice(-6);
   user = {name,biz,type,id};
   localStorage.setItem('st_user', JSON.stringify(user));
   apiKey = localStorage.getItem('st_key_'+id)||'';
@@ -766,7 +766,7 @@ function renderSummary(){
   document.getElementById('sum-body').innerHTML=html;
 
   const rc=expenses.filter(e=>e.receipt).length;
-  document.getElementById('dl-count').textContent=rc>0?rc+' receipt photo'+(rc!==1?'s':')+' available to download':'No receipt photos saved yet';
+  document.getElementById('dl-count').textContent=rc>0?rc+' receipt photo'+(rc!==1?'s':'')+' available to download':'No receipt photos saved yet';
 }
 
 function updateMetrics(){
