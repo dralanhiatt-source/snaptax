@@ -2226,9 +2226,9 @@ function renderSummary(){
   const mileTotal=(trips[yr]||[]).reduce((s,t)=>s+t.deduction,0);
   const milesMi=(trips[yr]||[]).reduce((s,t)=>s+t.miles,0);
   let html='';
-  const catEntries=Object.entries(cats);
+  const entries=Object.entries(cats);
   if(!entries.length&&!mileTotal){document.getElementById('sum-body').innerHTML='<div class="empty-msg">Add expenses to see summary</div>';return;}
-  catEntries.sort((a,b)=>b[1].deductible-a[1].deductible).forEach(([cat,v])=>{
+  entries.sort((a,b)=>b[1].deductible-a[1].deductible).forEach(([cat,v])=>{
     html+=`<div class="summary-row"><span><span class="tag${cat.includes('Meals')?' tag-amber':''}">${cat}</span></span><span class="deductible">$${v.deductible.toFixed(2)}<span style="font-size:12px;color:var(--text3);font-weight:400;"> of $${v.spent.toFixed(2)}</span></span></div>`;
   });
   if(mileTotal) html+=`<div class="summary-row"><span><span class="tag tag-amber">Mileage — ${milesMi.toFixed(1)} mi</span></span><span class="deductible">$${mileTotal.toFixed(2)}</span></div>`;
@@ -2522,8 +2522,8 @@ const DEDUCTION_TIPS = [
 ];
 
 function renderDeductionTips() {
-  const tipFilter = document.getElementById('tips-filter').value;
-  const filtered = DEDUCTION_TIPS.filter(t => t.categories.includes('all') || t.categories.includes(tipFilter));
+  const filter = document.getElementById('tips-filter').value;
+  const filtered = DEDUCTION_TIPS.filter(t => t.categories.includes('all') || t.categories.includes(filter));
   document.getElementById('deduction-tips-list').innerHTML = filtered.map(t => `
     <div style="display:flex;gap:12px;padding:12px;background:var(--surface2);border-radius:var(--r);margin-bottom:8px;align-items:flex-start;">
       <div style="font-size:22px;flex-shrink:0;">${t.icon}</div>
@@ -3568,7 +3568,7 @@ function renderReceiptVault() {
   document.getElementById('rv-year').textContent = yr;
   const search = (document.getElementById('rv-search').value || '').toLowerCase();
   const catFilter = document.getElementById('rv-cat-filter').value;
-  const sortBy = document.getElementById('rv-sort').value;
+  const sort = document.getElementById('rv-sort').value;
 
   let items = (expenses[yr] || []).map(e => ({...e}));
 
@@ -3583,12 +3583,12 @@ function renderReceiptVault() {
 
   // Sort
   items.sort((a,b) => {
-    if(sortBy==='entry-desc') return new Date(b.entryDate||b.date) - new Date(a.entryDate||a.date);
-    if(sortBy==='entry-asc') return new Date(a.entryDate||a.date) - new Date(b.entryDate||b.date);
-    if(sortBy==='receipt-desc') return new Date(b.receiptDate||b.date) - new Date(a.receiptDate||a.date);
-    if(sortBy==='receipt-asc') return new Date(a.receiptDate||a.date) - new Date(b.receiptDate||b.date);
-    if(sortBy==='amount-desc') return b.amount - a.amount;
-    if(sortBy==='amount-asc') return a.amount - b.amount;
+    if(sort==='entry-desc') return new Date(b.entryDate||b.date) - new Date(a.entryDate||a.date);
+    if(sort==='entry-asc') return new Date(a.entryDate||a.date) - new Date(b.entryDate||b.date);
+    if(sort==='receipt-desc') return new Date(b.receiptDate||b.date) - new Date(a.receiptDate||a.date);
+    if(sort==='receipt-asc') return new Date(a.receiptDate||a.date) - new Date(b.receiptDate||b.date);
+    if(sort==='amount-desc') return b.amount - a.amount;
+    if(sort==='amount-asc') return a.amount - b.amount;
     return 0;
   });
 
@@ -4001,7 +4001,7 @@ function importTurboData() {
   renderSummary(); renderYOY();
 }
 
-const saved=localStorage.getItem('st2_user');
+(function(){const saved=localStorage.getItem('st2_user');
 if(saved){
   try{
     user=JSON.parse(saved);
@@ -4020,14 +4020,10 @@ if(saved){
       document.getElementById('pin-setup-screen').classList.remove('hidden');
     }
   }catch(e){}
-}
+}})();
 </script>
 </body>
 </html>
-
-
-
-
 
 
 
