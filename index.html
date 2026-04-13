@@ -1445,13 +1445,13 @@ function loadAll(){
 }
 
 function doLogin(){
-  const name=document.getElementById('ln-name').value.trim();
+  const userName=document.getElementById('ln-name').value.trim();
   const biz=document.getElementById('ln-biz').value.trim();
   const filing=document.getElementById('ln-filing').value;
   const type=document.getElementById('ln-type').value;
-  if(!name||!biz){alert('Please enter your name and business name.');return;}
-  const id=(name+biz).toLowerCase().replace(/[^a-z0-9]/g,'').substring(0,16)||'user'+Date.now().toString().slice(-6);
-  user={name,biz,type,filing,id};
+  if(!userName||!biz){alert('Please enter your name and business name.');return;}
+  const id=(userName+biz).toLowerCase().replace(/[^a-z0-9]/g,'').substring(0,16)||'user'+Date.now().toString().slice(-6);
+  user={name:userName,biz,type,filing,id};
   localStorage.setItem('st2_user',JSON.stringify(user));
   apiKey=localStorage.getItem('st2_key_'+id)||'';
   loadAll();
@@ -2051,11 +2051,11 @@ function addPaycheck(){
 }
 
 function saveTemplate(){
-  const name=document.getElementById('tmpl-name').value.trim();
+  const tmplName=document.getElementById('tmpl-name').value.trim();
   const amt=parseFloat(document.getElementById('tmpl-amt').value);
   const cat=document.getElementById('tmpl-cat').value;
-  if(!name||!amt||!cat){alert('Fill in name, amount, and category.');return;}
-  templates.push({id:Date.now(),name,amount:amt,category:cat});
+  if(!tmplName||!amt||!cat){alert('Fill in name, amount, and category.');return;}
+  templates.push({id:Date.now(),name:tmplName,amount:amt,category:cat});
   saveAll();renderTemplates();
   document.getElementById('tmpl-name').value='';
   document.getElementById('tmpl-amt').value='';
@@ -3041,17 +3041,17 @@ function skipOnboarding(){
 function saveReminderContact(){
   const phone = document.getElementById('reminder-phone').value.trim();
   const email = document.getElementById('reminder-email').value.trim();
-  const confirm = document.getElementById('reminder-confirm');
+  const confirmEl = document.getElementById('reminder-confirm');
   if(!phone&&!email){
-    confirm.style.color='var(--red)';
-    confirm.textContent='Please enter a phone number or email.';
+    confirmEl.style.color='var(--red)';
+    confirmEl.textContent='Please enter a phone number or email.';
     return;
   }
   if(user){
     localStorage.setItem('st_reminder_'+user.id, JSON.stringify({phone,email,savedAt:new Date().toISOString()}));
   }
-  confirm.style.color='var(--accent)';
-  confirm.textContent='\u2713 Saved! You\'ll be reminded to complete setup. (Reminder delivery via MIA coming soon)';
+  confirmEl.style.color='var(--accent)';
+  confirmEl.textContent='\u2713 Saved! You\'ll be reminded to complete setup. (Reminder delivery via MIA coming soon)';
 
   // In future: MIA sends WhatsApp reminder automatically
   // For now: store contact info for manual follow-up
