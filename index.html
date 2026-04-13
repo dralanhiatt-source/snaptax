@@ -1452,15 +1452,18 @@ function doLogin(){
   localStorage.setItem('st2_user',JSON.stringify(user));
   apiKey=localStorage.getItem('st2_key_'+id)||'';
   loadAll();
+  document.getElementById('login-screen').classList.add('hidden');
+  // Step 1: Check ToS
+  const tosOk = localStorage.getItem('st_tos_'+id);
+  if(!tosOk){ showTOS(); return; }
+  // Step 2: PIN
   const hasPin = localStorage.getItem('st3_pin_'+id);
   if(hasPin) {
-    document.getElementById('login-screen').classList.add('hidden');
     document.getElementById('pin-login-screen').classList.remove('hidden');
     document.getElementById('pin-login-name').textContent = user.name + ' — ' + user.biz;
     document.getElementById('pin-entry').value = '';
     document.getElementById('pin-entry').focus();
   } else {
-    document.getElementById('login-screen').classList.add('hidden');
     document.getElementById('pin-setup-screen').classList.remove('hidden');
   }
 }
@@ -3432,7 +3435,10 @@ function updateSubscriptionStatusPanel(){
 let pricingBillingCycle = 'monthly';
 
 function showPricing(){
-  document.getElementById('main-screen').classList.add('hidden');
+  ['login-screen','main-screen','pin-setup-screen','pin-login-screen','onboarding-screen','tos-screen'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.classList.add('hidden');
+  });
   document.getElementById('pricing-screen').classList.remove('hidden');
   window.scrollTo(0,0);
   setBillingCycle('monthly');
@@ -3440,7 +3446,14 @@ function showPricing(){
 
 function hidePricing(){
   document.getElementById('pricing-screen').classList.add('hidden');
-  document.getElementById('main-screen').classList.remove('hidden');
+  // Go back to main if logged in, otherwise login screen
+  if(user && localStorage.getItem('st_tos_'+user.id)){
+    const hasOnboarded = localStorage.getItem('st_onboarded_'+user.id);
+    if(!hasOnboarded){ showOnboarding(); }
+    else { document.getElementById('main-screen').classList.remove('hidden'); }
+  } else {
+    document.getElementById('login-screen').classList.remove('hidden');
+  }
 }
 
 function setBillingCycle(cycle){
