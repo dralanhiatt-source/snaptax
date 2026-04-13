@@ -1,3 +1,12 @@
+<!--
+  SnapTax — AI-Powered Business Tax Tracker
+  Copyright © 2026 LifePulse AI / Dr. Alan Hiatt
+  All rights reserved. Unauthorized copying, modification, distribution,
+  or use of this software, via any medium, is strictly prohibited.
+  Proprietary and confidential.
+  Contact: LifePulse AI | dralanhiatt@gmail.com
+  Version: 9.0 | https://dralanhiatt-source.github.io/snaptax
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -260,6 +269,23 @@ tbody tr:hover td{background:var(--surface2);}
   .tabs{gap:2px;}
   .tab{font-size:11px;padding:8px 6px;}
 }
+
+/* CALENDAR PICKER */
+.cal-wrap{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;}
+.cal-box{background:var(--surface);border:1px solid var(--border2);border-radius:var(--r-lg);padding:20px;width:320px;max-width:100%;animation:fadeUp 0.25s ease;}
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.cal-title{font-size:15px;font-weight:700;}
+.cal-nav{background:none;border:1px solid var(--border2);border-radius:var(--r);color:var(--text);cursor:pointer;padding:6px 12px;font-size:14px;}
+.cal-nav:hover{border-color:var(--accent);}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.cal-day-name{text-align:center;font-size:11px;font-weight:600;color:var(--text3);padding:4px 0;}
+.cal-day{text-align:center;padding:8px 4px;border-radius:var(--r);cursor:pointer;font-size:13px;border:1px solid transparent;}
+.cal-day:hover{background:var(--accent-dim);border-color:var(--accent);}
+.cal-day.today{border-color:var(--accent);color:var(--accent);font-weight:700;}
+.cal-day.selected{background:var(--accent);color:#000;font-weight:700;}
+.cal-day.other-month{color:var(--text3);}
+.cal-day.empty{cursor:default;}
+.cal-footer{display:flex;gap:8px;margin-top:14px;}
 </style>
 </head>
 <body>
@@ -418,10 +444,13 @@ tbody tr:hover td{background:var(--surface2);}
       <div style="color:var(--accent);font-size:13px;font-weight:600;">30-day free trial · No credit card required · Cancel anytime</div>
     </div>
 
-    <div style="display:flex;gap:8px;justify-content:center;margin-bottom:32px;">
-      <button class="btn" id="billing-monthly-btn" onclick="setBillingCycle('monthly')" style="background:var(--accent);color:#000;border-color:var(--accent);font-weight:700;">Monthly</button>
-      <button class="btn" id="billing-annual-btn" onclick="setBillingCycle('annual')">Annual <span style="color:var(--accent);font-size:11px;font-weight:700;">SAVE 17%</span></button>
+    <div style="display:flex;gap:6px;justify-content:center;margin-bottom:8px;flex-wrap:wrap;">
+      <button class="btn" id="billing-monthly-btn" onclick="setBillingCycle('monthly')" style="background:var(--accent);color:#000;border-color:var(--accent);font-weight:700;font-size:13px;">Monthly</button>
+      <button class="btn" id="billing-3month-btn" onclick="setBillingCycle('3month')" style="font-size:13px;">3 Months <span style="color:var(--accent);font-size:10px;font-weight:700;">-10%</span></button>
+      <button class="btn" id="billing-6month-btn" onclick="setBillingCycle('6month')" style="font-size:13px;">6 Months <span style="color:var(--accent);font-size:10px;font-weight:700;">-15%</span></button>
+      <button class="btn" id="billing-annual-btn" onclick="setBillingCycle('annual')" style="font-size:13px;">Annual <span style="color:var(--accent);font-size:10px;font-weight:700;">-17%</span></button>
     </div>
+    <div style="text-align:center;font-size:12px;color:var(--text3);margin-bottom:24px;">Timer starts on payment · Renew 5 days before expiry to avoid interruption</div>
 
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px;" id="pricing-cards">
 
@@ -539,6 +568,68 @@ tbody tr:hover td{background:var(--surface2);}
   </div>
 </div>
 
+
+<!-- TERMS OF SERVICE SCREEN -->
+<div id="tos-screen" class="hidden">
+  <div class="login-wrap">
+    <div class="login-logo"><span class="snap">Snap</span><span class="tax">Tax</span></div>
+    <div class="login-tagline">by LifePulse AI</div>
+    <div class="login-card" style="max-width:500px;">
+      <h2 style="margin-bottom:4px;">Terms of Service</h2>
+      <p style="margin-bottom:16px;">Please read and accept before continuing</p>
+      <div style="background:var(--surface2);border-radius:var(--r);padding:16px;max-height:260px;overflow-y:auto;font-size:12px;color:var(--text2);line-height:1.8;margin-bottom:16px;">
+        <div style="font-weight:700;color:var(--text);margin-bottom:8px;">SnapTax Terms of Service — Effective April 2026</div>
+        <div style="margin-bottom:8px;"><strong>1. License.</strong> SnapTax is proprietary software owned by LifePulse AI. You are granted a limited, non-exclusive, non-transferable license to use this application for your personal business tax tracking. You may not copy, modify, distribute, sell, or reverse-engineer any portion of this software.</div>
+        <div style="margin-bottom:8px;"><strong>2. Data Privacy.</strong> All financial data you enter is stored exclusively on your device using browser local storage. LifePulse AI does not collect, store, or transmit your financial data. Receipt images sent for AI scanning are processed by Anthropic's API under Anthropic's privacy policy and are not retained by LifePulse AI.</div>
+        <div style="margin-bottom:8px;"><strong>3. Not Financial or Tax Advice.</strong> SnapTax provides estimates and tools for organizational purposes only. It does not constitute tax advice, accounting advice, or legal advice. Always consult a qualified tax professional before filing.</div>
+        <div style="margin-bottom:8px;"><strong>4. Subscription.</strong> Subscriptions are billed as selected. Your timer begins on payment confirmation. No refunds are provided for unused days. You retain read-only access to your data after subscription expiry.</div>
+        <div style="margin-bottom:8px;"><strong>5. Intellectual Property.</strong> SnapTax, LifePulse AI, and all associated logos, designs, and code are the exclusive property of Dr. Alan Hiatt / LifePulse AI. Unauthorized use is subject to legal action.</div>
+        <div style="margin-bottom:8px;"><strong>6. Limitation of Liability.</strong> LifePulse AI is not liable for any errors in tax estimates, lost data due to browser clearing, or IRS penalties. Use at your own risk.</div>
+        <div style="margin-bottom:8px;"><strong>7. Updates.</strong> We may update these terms at any time. Continued use constitutes acceptance of updated terms.</div>
+        <div><strong>8. Contact.</strong> Questions? Email dralanhiatt@gmail.com</div>
+      </div>
+      <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin-bottom:16px;">
+        <input type="checkbox" id="tos-check" style="width:18px;height:18px;flex-shrink:0;margin-top:2px;" onchange="tosCheckChanged()">
+        <span style="font-size:13px;color:var(--text2);">I have read and agree to the Terms of Service and Privacy Policy</span>
+      </label>
+      <button class="btn btn-primary btn-big" id="tos-accept-btn" onclick="acceptTOS()" disabled style="opacity:0.4;">Accept & Continue →</button>
+      <div style="text-align:center;margin-top:12px;font-size:11px;color:var(--text3);">© 2026 LifePulse AI · All rights reserved</div>
+    </div>
+  </div>
+</div>
+
+<!-- ONBOARDING CHECKLIST SCREEN -->
+<div id="onboarding-screen" class="hidden">
+  <div style="max-width:600px;margin:0 auto;padding:40px 16px;">
+    <div style="text-align:center;margin-bottom:32px;">
+      <div style="font-size:36px;font-weight:800;letter-spacing:-1px;margin-bottom:6px;"><span style="color:var(--accent);">Snap</span><span style="color:var(--text);">Tax</span></div>
+      <div style="color:var(--accent);font-size:14px;font-weight:600;">Welcome! Let's get you set up in 5 minutes</div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="margin-bottom:4px;">Setup checklist</div>
+      <div class="card-sub">Complete each step to unlock the full power of SnapTax</div>
+
+      <div id="checklist-steps" style="margin-bottom:20px;"></div>
+
+      <div style="background:var(--surface2);border-radius:var(--r);padding:14px;margin-bottom:16px;">
+        <div style="font-weight:600;font-size:13px;margin-bottom:8px;">📱 Get a reminder to finish setup</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <input type="tel" id="reminder-phone" placeholder="Your phone number" style="flex:1;min-width:160px;font-size:13px;">
+          <input type="email" id="reminder-email" placeholder="Your email" style="flex:1;min-width:160px;font-size:13px;">
+        </div>
+        <button class="btn btn-primary" style="width:100%;margin-top:8px;font-size:13px;" onclick="saveReminderContact()">📲 Send me a reminder</button>
+        <div id="reminder-confirm" style="font-size:12px;color:var(--accent);margin-top:6px;min-height:16px;"></div>
+      </div>
+
+      <div id="checklist-progress" style="margin-bottom:14px;"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="onboarding-continue-btn" onclick="finishOnboarding()">Continue to SnapTax →</button>
+        <button class="btn" onclick="skipOnboarding()">Skip for now</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="login-screen">
   <div class="login-wrap">
     <div class="login-logo"><span class="snap">Snap</span><span class="tax">Tax</span></div>
@@ -587,7 +678,7 @@ tbody tr:hover td{background:var(--surface2);}
     <div class="top-bar-right">
       <select class="year-select" id="year-select" onchange="changeYear(this.value)">
         <option value="2026">2026</option>
-        <option value="2025" selected>2025</option>
+        <option value="2025">2025</option>
         <option value="2024">2024</option>
         <option value="2023">2023</option>
       </select>
@@ -623,6 +714,7 @@ tbody tr:hover td{background:var(--surface2);}
     <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
       <button class="btn btn-primary" onclick="showPricing()" style="font-size:13px;">💳 View plans & pricing</button>
       <button class="btn btn-blue" onclick="showTopUpModal()" style="font-size:13px;">⚡ Buy scan top-up</button>
+      <button class="btn btn-purple" onclick="showOnboardingFromSettings()" style="font-size:13px;">✅ Setup checklist</button>
     </div>
     <div id="subscription-status-panel" style="margin-top:12px;font-size:13px;color:var(--text2);"></div>
   </div>
@@ -662,6 +754,7 @@ tbody tr:hover td{background:var(--surface2);}
     <div class="tab" id="t-tools" onclick="switchTab('tools')">Tools</div>
     <div class="tab" id="t-credit" onclick="switchTab('credit')">Credit</div>
     <div class="tab" id="t-loans" onclick="switchTab('loans')">Loans</div>
+    <div class="tab" id="t-receipts" onclick="switchTab('receipts')">Receipts</div>
     <div class="tab" id="t-summary" onclick="switchTab('summary')">Reports</div>
   </div>
 
@@ -697,9 +790,10 @@ tbody tr:hover td{background:var(--surface2);}
         <span id="form-preview-name">Receipt attached</span>
       </div>
       <div class="grid2">
-        <div class="field"><label>Date</label><input type="date" id="e-date"></div>
+        <div class="field"><label>Receipt date (date on receipt)</label><input type="text" id="e-receipt-date" onclick="openCal('e-receipt-date')" placeholder="Tap to pick date" readonly style="cursor:pointer;"></div>
         <div class="field"><label>Amount ($)</label><input type="number" id="e-amt" placeholder="0.00" step="0.01"></div>
       </div>
+      <div class="field"><label>Entry date (today — auto stamped)</label><input type="text" id="e-date" readonly style="opacity:0.6;cursor:default;background:var(--surface2);" placeholder="Auto-filled"></div>
       <div class="field"><label>Vendor / description</label><input type="text" id="e-desc" placeholder="Who did you pay?"></div>
       <div class="field"><label>Category</label>
         <select id="e-cat">
@@ -771,7 +865,7 @@ tbody tr:hover td{background:var(--surface2);}
       <div class="card-title">💰 Log income</div>
       <div class="card-sub">Track all revenue so your tax estimate stays accurate</div>
       <div class="grid2">
-        <div class="field"><label>Date</label><input type="date" id="inc-date"></div>
+        <div class="field"><label>Date</label><input type="text" id="inc-date" onclick="openCal('inc-date')" placeholder="Tap to pick date" readonly style="cursor:pointer;"></div>
         <div class="field"><label>Amount ($)</label><input type="number" id="inc-amt" placeholder="0.00" step="0.01"></div>
       </div>
       <div class="field"><label>Source / client</label><input type="text" id="inc-source" placeholder="Client name or income source"></div>
@@ -814,7 +908,7 @@ tbody tr:hover td{background:var(--surface2);}
       <div class="card-title">🚗 Log a business trip</div>
       <div class="card-sub">IRS standard rate: $0.70/mile for 2025 · $0.725/mile for 2026</div>
       <div class="grid2">
-        <div class="field"><label>Date</label><input type="date" id="m-date"></div>
+        <div class="field"><label>Date</label><input type="text" id="m-date" onclick="openCal('m-date')" placeholder="Tap to pick date" readonly style="cursor:pointer;"></div>
         <div class="field"><label>Purpose</label>
           <select id="m-purpose">
             <option>Client meeting</option>
@@ -938,7 +1032,7 @@ tbody tr:hover td{background:var(--surface2);}
       <div class="card-title">💵 Log a paycheck</div>
       <div class="card-sub">Track withholdings from each paycheck to see taxes paid vs. owed in real time</div>
       <div class="grid2">
-        <div class="field"><label>Pay date</label><input type="date" id="pay-date"></div>
+        <div class="field"><label>Pay date</label><input type="text" id="pay-date" onclick="openCal('pay-date')" placeholder="Tap to pick date" readonly style="cursor:pointer;"></div>
         <div class="field"><label>Gross pay ($)</label><input type="number" id="pay-gross" placeholder="0.00" step="0.01"></div>
       </div>
       <div class="grid2">
@@ -1154,7 +1248,7 @@ tbody tr:hover td{background:var(--surface2);}
         <div class="field"><label>TransUnion</label><input type="number" id="cr-transunion" placeholder="715" min="300" max="850"></div>
         <div class="field"><label>Experian</label><input type="number" id="cr-experian" placeholder="718" min="300" max="850"></div>
       </div>
-      <div class="field"><label>Date</label><input type="date" id="cr-date"></div>
+      <div class="field"><label>Date</label><input type="text" id="cr-date" onclick="openCal('cr-date')" placeholder="Tap to pick date" readonly style="cursor:pointer;"></div>
       <div class="field"><label>Notes (optional)</label><input type="text" id="cr-notes" placeholder="After paying off credit card..."></div>
       <button class="btn btn-primary" onclick="saveManualCredit()">+ Save scores</button>
     </div>
@@ -1191,7 +1285,7 @@ tbody tr:hover td{background:var(--surface2);}
       </div>
       <div class="grid2">
         <div class="field"><label>Prepared by</label><input type="text" id="loan-prepared-by" placeholder="Your name"></div>
-        <div class="field"><label>Date prepared</label><input type="date" id="loan-date"></div>
+        <div class="field"><label>Date prepared</label><input type="text" id="loan-date" onclick="openCal('loan-date')" placeholder="Tap to pick date" readonly style="cursor:pointer;"></div>
       </div>
       <div class="field"><label>Loan purpose (optional)</label><input type="text" id="loan-purpose-text" placeholder="Equipment purchase, expansion, working capital..."></div>
       <div id="pl-preview" style="margin-top:16px;"></div>
@@ -1206,10 +1300,10 @@ tbody tr:hover td{background:var(--surface2);}
       <div class="card-sub">Create professional invoices to send to clients</div>
       <div class="grid2">
         <div class="field"><label>Client name</label><input type="text" id="inv-client" placeholder="ABC Company"></div>
-        <div class="field"><label>Invoice date</label><input type="date" id="inv-date"></div>
+        <div class="field"><label>Invoice date</label><input type="text" id="inv-date" onclick="openCal('inv-date')" placeholder="Tap to pick date" readonly style="cursor:pointer;"></div>
       </div>
       <div class="grid2">
-        <div class="field"><label>Due date</label><input type="date" id="inv-due"></div>
+        <div class="field"><label>Due date</label><input type="text" id="inv-due" onclick="openCal('inv-due')" placeholder="Tap to pick date" readonly style="cursor:pointer;"></div>
         <div class="field"><label>Invoice #</label><input type="text" id="inv-num" placeholder="INV-0001"></div>
       </div>
       <div id="inv-items" style="margin:14px 0;"></div>
@@ -1223,10 +1317,88 @@ tbody tr:hover td{background:var(--surface2);}
     </div>
   </div>
 
+
+<!-- CALENDAR MODAL -->
+<div class="cal-wrap hidden" id="cal-modal" onclick="calBackdropClick(event)">
+  <div class="cal-box">
+    <div class="cal-header">
+      <button class="cal-nav" onclick="calChangeMonth(-1)">‹</button>
+      <div class="cal-title" id="cal-title"></div>
+      <button class="cal-nav" onclick="calChangeMonth(1)">›</button>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <div class="cal-footer">
+      <button class="btn btn-primary" style="flex:1;" onclick="calToday()">Today</button>
+      <button class="btn" style="flex:1;" onclick="calClose()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+
+  <!-- RECEIPTS VAULT TAB -->
+  <div id="pane-receipts" class="hidden">
+
+    <div class="card">
+      <div class="card-title">🗂️ Receipt vault — <span id="rv-year"></span></div>
+      <div class="card-sub">Every receipt logged — searchable, verified, audit-ready</div>
+
+      <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+        <input type="text" id="rv-search" placeholder="🔍 Search receipts, vendors, categories..." style="flex:1;min-width:200px;" oninput="renderReceiptVault()">
+        <select id="rv-cat-filter" style="width:auto;" onchange="renderReceiptVault()">
+          <option value="">All categories</option>
+          <option>Advertising & marketing</option>
+          <option>Office supplies</option>
+          <option>Software & subscriptions</option>
+          <option>Phone & internet</option>
+          <option>Professional services</option>
+          <option>Meals (50% deductible)</option>
+          <option>Travel & lodging</option>
+          <option>Equipment & tools</option>
+          <option>Insurance</option>
+          <option>Rent & utilities</option>
+          <option>Vehicle expenses</option>
+          <option>Repairs & maintenance</option>
+          <option>Wages & contractors</option>
+          <option>Taxes & licenses</option>
+          <option>Other</option>
+        </select>
+        <select id="rv-sort" style="width:auto;" onchange="renderReceiptVault()">
+          <option value="entry-desc">Newest entered</option>
+          <option value="entry-asc">Oldest entered</option>
+          <option value="receipt-desc">Newest receipt</option>
+          <option value="receipt-asc">Oldest receipt</option>
+          <option value="amount-desc">Highest amount</option>
+          <option value="amount-asc">Lowest amount</option>
+        </select>
+      </div>
+
+      <div id="rv-summary-bar" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;padding:12px;background:var(--surface2);border-radius:var(--r);"></div>
+      <div id="rv-body"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📊 Category totals</div>
+      <div id="rv-cat-totals"></div>
+    </div>
+
+  </div>
+
+  <!-- RECEIPT DETAIL MODAL -->
+  <div id="rv-modal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:1500;display:none;align-items:center;justify-content:center;padding:20px;" onclick="closeRVModal()">
+    <div class="card" style="max-width:480px;width:100%;max-height:90vh;overflow-y:auto;" onclick="event.stopPropagation()">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div class="card-title" id="rv-modal-title">Receipt detail</div>
+        <button class="btn" onclick="closeRVModal()" style="padding:4px 12px;">×</button>
+      </div>
+      <div id="rv-modal-img" style="margin-bottom:14px;"></div>
+      <div id="rv-modal-body"></div>
+    </div>
+  </div>
+
   <div style="text-align:center;padding:20px 0;border-top:1px solid var(--border);margin-top:20px;">
     <button class="btn" style="font-size:12px;padding:6px 14px;" onclick="showPrivacy()">🔒 Privacy Policy</button>
     <span style="color:var(--text3);font-size:12px;margin:0 12px;">·</span>
-    <span style="color:var(--text3);font-size:12px;">SnapTax v3.0</span>
+    <span style="color:var(--text3);font-size:12px;">SnapTax v9.0 · LifePulse AI</span>
   </div>
 
 </div>
@@ -1242,7 +1414,7 @@ const QUARTERS = {
   2023:[{q:'Q1',due:'2023-04-18'},{q:'Q2',due:'2023-06-15'},{q:'Q3',due:'2023-09-15'},{q:'Q4',due:'2024-01-16'}]
 };
 
-let user=null, currentYear=2025, expenses={}, trips={}, income={}, paychecks={}, templates=[], apiKey='', currentReceiptData=null;
+let user=null, currentYear=new Date().getFullYear(), expenses={}, trips={}, income={}, paychecks={}, templates=[], apiKey='', currentReceiptData=null;
 
 function sk(type,year){return 'st2_'+user.id+'_'+year+'_'+type;}
 function skG(type){return 'st2_'+user.id+'_'+type;}
@@ -1307,6 +1479,7 @@ function showMain(){
   document.getElementById('av').textContent=ini;
   document.getElementById('uname').textContent=user.name.split(' ')[0];
   if(apiKey){document.getElementById('api-setup').classList.add('hidden');}
+  currentYear=new Date().getFullYear();
   document.getElementById('year-select').value=currentYear;
   const savedKey=localStorage.getItem('st2_key_'+user.id)||'';
   if(savedKey)document.getElementById('ak-input2').value=savedKey;
@@ -1382,14 +1555,14 @@ function checkTaxSeason(){
 function setTodayDates(){
   const t=new Date();
   const ds=t.toISOString().split('T')[0];
-  ['e-date','m-date','inc-date','pay-date'].forEach(id=>{
+  ['e-receipt-date','m-date','inc-date','pay-date'].forEach(id=>{
     const el=document.getElementById(id);
     if(el)el.value=ds;
   });
 }
 
 function switchTab(t){
-  ['expenses','income','mileage','w2','tools','credit','loans','summary'].forEach(id=>{
+  ['expenses','income','mileage','w2','tools','credit','loans','receipts','summary'].forEach(id=>{
     const pane=document.getElementById('pane-'+id);
     const tab=document.getElementById('t-'+id);
     if(pane)pane.classList.add('hidden');
@@ -1400,6 +1573,7 @@ function switchTab(t){
   if(t==='summary'){renderSummary();renderYOY();}
   if(t==='income'){renderPL();}
   if(t==='tools'){renderBudgets();renderDeductionTips();}
+  if(t==='receipts'){document.getElementById('rv-year').textContent=currentYear;renderReceiptVault();}
   if(t==='credit'){renderCreditHistory();}
   if(t==='loans'){previewPL();setLoanType(loanType);const n=document.getElementById('inv-num');if(n&&!n.value)n.value='INV-'+String((invoiceItems.length||0)+1).padStart(4,'0');}
 }
@@ -1530,7 +1704,8 @@ async function onReceiptFile(input){
     if(data.error){alert('API error: '+data.error.message);return;}
     const p=JSON.parse(data.content[0].text.trim().replace(/```json|```/g,'').trim());
     incrementScanCount();
-    if(p.date)document.getElementById('e-date').value=p.date;
+    // Receipt date stored separately - don't overwrite entry date
+    if(p.date) document.getElementById('e-receipt-date').value=p.date;
     if(p.amount)document.getElementById('e-amt').value=p.amount;
     if(p.vendor)document.getElementById('e-desc').value=p.vendor+(p.description?' — '+p.description:'');
     if(p.suggestedCategory)document.getElementById('e-cat').value=p.suggestedCategory;
@@ -1820,13 +1995,14 @@ function calcMile(){
 }
 
 function addExpense(){
-  const date=document.getElementById('e-date').value;
+  const entryDate=new Date().toISOString().split('T')[0];
+  const receiptDate=document.getElementById('e-receipt-date').value||entryDate;
   const amt=parseFloat(document.getElementById('e-amt').value);
   const cat=document.getElementById('e-cat').value;
   const desc=document.getElementById('e-desc').value;
-  if(!date||!amt||!cat){alert('Please fill in date, amount, and category.');return;}
+  if(!amt||!cat){alert('Please fill in amount and category.');return;}
   if(!expenses[currentYear])expenses[currentYear]=[];
-  expenses[currentYear].unshift({id:Date.now(),date,amount:amt,category:cat,desc,receipt:currentReceiptData?currentReceiptData.dataURL:null});
+  expenses[currentYear].unshift({id:Date.now(),date:entryDate,entryDate,receiptDate,amount:amt,category:cat,desc,receipt:currentReceiptData?currentReceiptData.dataURL:null});
   currentReceiptData=null;
   saveAll();renderExpenses();updateMetrics();updateTaxDashboard();clearForm();
 }
@@ -1916,7 +2092,7 @@ function delPaycheck(id){
 }
 
 function clearForm(){
-  ['e-amt','e-desc'].forEach(id=>document.getElementById(id).value='');
+  ['e-amt','e-desc','e-receipt-date'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('e-cat').value='';
   document.getElementById('rzone').classList.remove('active');
   document.getElementById('scan-result').classList.remove('show');
@@ -1944,7 +2120,7 @@ function renderExpenses(){
   tb.innerHTML=expenses[yr].map(e=>`
     <tr>
       <td>${e.receipt?`<img src="${e.receipt}" class="receipt-thumb" onclick="openLightbox('${e.receipt}')">`:`<div class="no-receipt">📄</div>`}</td>
-      <td style="white-space:nowrap;font-size:12px;">${e.date}</td>
+      <td style="white-space:nowrap;font-size:11px;"><div>${e.receiptDate||e.date}</div><div style="color:var(--text3);font-size:10px;">Entered: ${e.entryDate||e.date}</div></td>
       <td style="font-size:12px;color:var(--text2);max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e.desc||'—'}</td>
       <td><span class="tag${e.category.includes('Meals')?' tag-amber':''}">${e.category}</span></td>
       <td style="text-align:right;font-weight:700;white-space:nowrap;font-family:var(--mono);">$${e.amount.toFixed(2)}</td>
@@ -2766,6 +2942,276 @@ function addExpense() {
 }
 
 
+
+
+// ============ TERMS OF SERVICE ============
+function tosCheckChanged(){
+  const checked = document.getElementById('tos-check').checked;
+  const btn = document.getElementById('tos-accept-btn');
+  if(btn){ btn.disabled = !checked; btn.style.opacity = checked?'1':'0.4'; }
+}
+
+function acceptTOS(){
+  if(!document.getElementById('tos-check').checked) return;
+  localStorage.setItem('st_tos_'+user.id, '1');
+  document.getElementById('tos-screen').classList.add('hidden');
+  const hasOnboarded = localStorage.getItem('st_onboarded_'+user.id);
+  if(!hasOnboarded){
+    showOnboarding();
+  } else {
+    showMain();
+  }
+}
+
+function showTOS(){
+  ['login-screen','pin-setup-screen','pin-login-screen','main-screen','onboarding-screen'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.classList.add('hidden');
+  });
+  document.getElementById('tos-screen').classList.remove('hidden');
+  document.getElementById('tos-check').checked=false;
+  const btn=document.getElementById('tos-accept-btn');
+  if(btn){btn.disabled=true;btn.style.opacity='0.4';}
+}
+
+// ============ ONBOARDING CHECKLIST ============
+const CHECKLIST = [
+  {id:'profile',icon:'👤',title:'Create your profile',desc:'Enter your name and business name',action:'switchTab("expenses")',check:()=>!!user&&!!user.name&&!!user.biz},
+  {id:'pin',icon:'🔐',title:'Set your security PIN',desc:'Protect your tax data with a 4-digit PIN',action:'',check:()=>!!(user&&localStorage.getItem('st3_pin_'+user.id))},
+  {id:'apikey',icon:'🔑',title:'Add your Anthropic API key',desc:'Required for AI receipt scanning',action:'toggleSettings()',check:()=>!!apiKey},
+  {id:'expense',icon:'📄',title:'Add your first expense',desc:'Snap a receipt or enter manually',action:'switchTab("expenses")',check:()=>(expenses[currentYear]||[]).length>0},
+  {id:'mileage',icon:'🚗',title:'Log a business trip',desc:'Track mileage for tax deductions',action:'switchTab("mileage")',check:()=>(trips[currentYear]||[]).length>0},
+  {id:'locations',icon:'📍',title:'Save your frequent locations',desc:'Set Home, Work 1, Work 2 for quick mileage entry',action:'switchTab("mileage")',check:()=>{const l=JSON.parse(localStorage.getItem('st_ql_'+(user?user.id:''))||'{}');return !!(l.home||l.work1);}},
+  {id:'subscribe',icon:'💳',title:'Choose your plan',desc:'Start your 30-day free trial',action:'showPricing()',check:()=>!!(subscription&&(subscription.status==='active'||subscription.status==='trial'))},
+];
+
+function renderOnboardingChecklist(){
+  const completed = CHECKLIST.filter(s=>s.check()).length;
+  const pct = Math.round((completed/CHECKLIST.length)*100);
+
+  document.getElementById('checklist-steps').innerHTML = CHECKLIST.map((step,i)=>{
+    const done = step.check();
+    return '<div style="display:flex;gap:12px;align-items:flex-start;padding:12px;background:var(--surface2);border-radius:var(--r);margin-bottom:8px;opacity:'+(done?'0.7':'1')+';">' +
+      '<div style="width:32px;height:32px;border-radius:50%;background:'+(done?'var(--accent)':'var(--border2)')+';display:flex;align-items:center;justify-content:center;font-size:'+(done?'16px':'14px')+';flex-shrink:0;">'+(done?'✓':step.icon)+'</div>' +
+      '<div style="flex:1;">' +
+        '<div style="font-weight:700;font-size:14px;'+(done?'text-decoration:line-through;color:var(--text3)':'')+'">' + step.title + '</div>' +
+        '<div style="font-size:12px;color:var(--text3);">' + step.desc + '</div>' +
+      '</div>' +
+      (!done&&step.action?'<button class="btn" style="font-size:11px;padding:5px 10px;flex-shrink:0;" onclick="'+step.action+';skipOnboarding()">Do it →</button>':'') +
+    '</div>';
+  }).join('');
+
+  document.getElementById('checklist-progress').innerHTML =
+    '<div style="margin-bottom:6px;display:flex;justify-content:space-between;font-size:13px;"><span style="font-weight:600;">Setup progress</span><span style="color:var(--accent);font-weight:700;">'+completed+'/'+CHECKLIST.length+' complete</span></div>' +
+    '<div class="progress-bar"><div class="progress-fill" style="width:'+pct+'%"></div></div>' +
+    (pct===100?'<div style="color:var(--accent);font-size:13px;font-weight:600;margin-top:8px;text-align:center;">🎉 All steps complete! You are ready to track.</div>':'');
+
+  const btn = document.getElementById('onboarding-continue-btn');
+  if(btn) btn.textContent = pct===100 ? 'All done! Let\'s go!' : 'Continue to SnapTax \u2192';
+}
+
+function showOnboarding(){
+  ['login-screen','pin-setup-screen','pin-login-screen','main-screen','tos-screen'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.classList.add('hidden');
+  });
+  document.getElementById('onboarding-screen').classList.remove('hidden');
+  renderOnboardingChecklist();
+  window.scrollTo(0,0);
+}
+
+function finishOnboarding(){
+  localStorage.setItem('st_onboarded_'+user.id,'1');
+  document.getElementById('onboarding-screen').classList.add('hidden');
+  showMain();
+}
+
+function skipOnboarding(){
+  localStorage.setItem('st_onboarded_'+user.id,'1');
+  document.getElementById('onboarding-screen').classList.add('hidden');
+  showMain();
+}
+
+function saveReminderContact(){
+  const phone = document.getElementById('reminder-phone').value.trim();
+  const email = document.getElementById('reminder-email').value.trim();
+  const confirm = document.getElementById('reminder-confirm');
+  if(!phone&&!email){
+    confirm.style.color='var(--red)';
+    confirm.textContent='Please enter a phone number or email.';
+    return;
+  }
+  if(user){
+    localStorage.setItem('st_reminder_'+user.id, JSON.stringify({phone,email,savedAt:new Date().toISOString()}));
+  }
+  confirm.style.color='var(--accent)';
+  confirm.textContent='\u2713 Saved! You\'ll be reminded to complete setup. (Reminder delivery via MIA coming soon)';
+
+  // In future: MIA sends WhatsApp reminder automatically
+  // For now: store contact info for manual follow-up
+  console.log('Reminder contact saved:', {phone, email});
+}
+
+// Show onboarding checklist as an in-app widget from settings
+function showOnboardingFromSettings(){
+  toggleSettings();
+  showOnboarding();
+}
+
+// ============ SUBSCRIPTION EXPIRY & ACCESS CONTROL ============
+const CYCLE_DAYS = {monthly:30,'3month':90,'6month':180,annual:365,trial:30};
+
+function getSubscriptionExpiry(){
+  if(!subscription) return null;
+  if(subscription.status==='trial'){
+    if(!subscription.trialStart) return null;
+    const start = new Date(subscription.trialStart);
+    start.setDate(start.getDate()+TRIAL_DAYS);
+    return start;
+  }
+  if(subscription.status==='active'&&subscription.paidStart){
+    const days = CYCLE_DAYS[subscription.cycle]||30;
+    const start = new Date(subscription.paidStart);
+    start.setDate(start.getDate()+days);
+    return start;
+  }
+  return null;
+}
+
+function getDaysUntilExpiry(){
+  const expiry = getSubscriptionExpiry();
+  if(!expiry) return null;
+  return Math.ceil((expiry - new Date())/86400000);
+}
+
+function isSubscriptionActive(){
+  if(!subscription) return false;
+  if(subscription.status==='trial') return getTrialDaysLeft()>0;
+  if(subscription.status==='active'){
+    const days = getDaysUntilExpiry();
+    return days !== null && days > 0;
+  }
+  return false;
+}
+
+function isReadOnly(){
+  // Expired: can view but not add/scan
+  if(!subscription) return false;
+  if(subscription.status==='expired') return true;
+  if(subscription.status==='trial' && getTrialDaysLeft()<=0) return true;
+  if(subscription.status==='active'){
+    const days = getDaysUntilExpiry();
+    if(days!==null && days<=0) return true;
+  }
+  return false;
+}
+
+function checkAndUpdateExpiry(){
+  if(!subscription) return;
+  const days = getDaysUntilExpiry();
+  if(days!==null && days<=0 && subscription.status!=='expired'){
+    subscription.status = 'expired';
+    saveSubscription();
+  }
+}
+
+function updateExpiryBanner(){
+  const banner = document.getElementById('trial-banner');
+  const msg = document.getElementById('trial-banner-msg');
+  const btn = banner ? banner.querySelector('button') : null;
+  if(!banner||!msg) return;
+
+  checkAndUpdateExpiry();
+  const days = getDaysUntilExpiry();
+  const readOnly = isReadOnly();
+
+  if(readOnly){
+    banner.style.background='var(--red-dim)';
+    banner.style.borderColor='var(--red)';
+    msg.style.color='var(--red)';
+    msg.textContent='🔒 Subscription expired — your data is safe. Renew to continue adding entries.';
+    if(btn){btn.textContent='Renew now →';btn.style.background='var(--red)';btn.style.color='#fff';}
+    banner.classList.remove('hidden');
+    applyReadOnlyMode(true);
+    return;
+  }
+
+  applyReadOnlyMode(false);
+
+  if(days===null){ banner.classList.add('hidden'); return; }
+
+  if(days<=5){
+    banner.style.background='var(--red-dim)';
+    banner.style.borderColor='var(--red)';
+    msg.style.color='var(--red)';
+    const label = subscription.status==='trial'?'free trial':'subscription';
+    msg.textContent='⚠️ Your '+label+' expires in '+days+' day'+(days!==1?'s':'')+' — renew now to keep tracking!';
+    if(btn){btn.textContent='Renew now →';btn.style.background='var(--red)';btn.style.color='#fff';}
+    banner.classList.remove('hidden');
+  } else if(days<=14){
+    banner.style.background='var(--amber-dim)';
+    banner.style.borderColor='var(--amber)';
+    msg.style.color='var(--amber)';
+    const label = subscription.status==='trial'?'free trial':'subscription';
+    msg.textContent='📅 Your '+label+' expires in '+days+' days';
+    if(btn){btn.textContent='Subscribe →';btn.style.background='var(--amber)';btn.style.color='#000';}
+    banner.classList.remove('hidden');
+  } else if(subscription.status==='trial'){
+    banner.style.background='var(--accent-dim)';
+    banner.style.borderColor='var(--accent)';
+    msg.style.color='var(--accent)';
+    msg.textContent='🎉 Free trial — '+days+' days remaining';
+    if(btn){btn.textContent='See plans →';btn.style.background='var(--accent)';btn.style.color='#000';}
+    banner.classList.remove('hidden');
+  } else {
+    banner.classList.add('hidden');
+  }
+}
+
+function applyReadOnlyMode(readOnly){
+  // Disable all add/scan buttons when expired
+  const addBtns = [
+    'Add expense','Add income','Log trip','Add paycheck',
+    'Add to expenses','Add business portion','Save scores','Save key',
+    'Enable AI receipt scanning'
+  ];
+  document.querySelectorAll('.btn-primary, .btn-blue, .btn-amber').forEach(btn => {
+    const txt = btn.textContent.trim();
+    if(txt.startsWith('+') || txt.includes('Add') || txt.includes('Save') || txt.includes('Log') || txt.includes('Scan') || txt.includes('Import')){
+      btn.disabled = readOnly;
+      btn.style.opacity = readOnly ? '0.4' : '1';
+      btn.title = readOnly ? 'Renew your subscription to continue adding data' : '';
+    }
+  });
+  // Show/hide expired overlay on receipt zone
+  const rzone = document.getElementById('rzone');
+  if(rzone){
+    if(readOnly){
+      rzone.style.opacity='0.4';
+      rzone.style.pointerEvents='none';
+    } else {
+      rzone.style.opacity='1';
+      rzone.style.pointerEvents='auto';
+    }
+  }
+}
+
+function selectPlan(plan){
+  if(subscription){
+    subscription.plan = plan;
+    subscription.cycle = pricingBillingCycle;
+    const days = CYCLE_DAYS[pricingBillingCycle]||30;
+    // In real Stripe integration, paidStart would be set after payment confirmation
+    // For now set it immediately (Stripe-ready)
+    subscription.paidStart = new Date().toISOString().split('T')[0];
+    subscription.status = 'trial'; // stays trial until Stripe confirms payment
+    saveSubscription();
+  }
+  hidePricing();
+  updateAllBanners();
+  alert('Plan selected: '+PLANS[plan].name+'. 30-day free trial active. Stripe billing coming soon!');
+}
+
 // ============ SUBSCRIPTION & SCAN COUNTER SYSTEM ============
 let subscription = null;
 let billingCycle = 'monthly';
@@ -2889,7 +3335,7 @@ function getDaysUntilBilling(){
 }
 
 function updateAllBanners(){
-  updateTrialBanner();
+  updateExpiryBanner();
   updateScanBanner();
   updateBillingBanner();
   updateSubscriptionStatusPanel();
@@ -2999,31 +3445,42 @@ function hidePricing(){
 
 function setBillingCycle(cycle){
   pricingBillingCycle = cycle;
-  const mBtn = document.getElementById('billing-monthly-btn');
-  const aBtn = document.getElementById('billing-annual-btn');
-  if(mBtn&&aBtn){
-    mBtn.style.background = cycle==='monthly'?'var(--accent)':'var(--surface2)';
-    mBtn.style.color = cycle==='monthly'?'#000':'var(--text)';
-    mBtn.style.borderColor = cycle==='monthly'?'var(--accent)':'var(--border2)';
-    aBtn.style.background = cycle==='annual'?'var(--accent)':'var(--surface2)';
-    aBtn.style.color = cycle==='annual'?'#000':'var(--text)';
-    aBtn.style.borderColor = cycle==='annual'?'var(--accent)':'var(--border2)';
-  }
-  const disc = getLoyaltyDiscount();
+  const cycles = ['monthly','3month','6month','annual'];
+  const discounts = {monthly:0,'3month':10,'6month':15,annual:17};
+  const durations = {monthly:30,'3month':90,'6month':180,annual:365};
+  const labels = {monthly:'Billed monthly','3month':'Billed every 3 months','6month':'Billed every 6 months',annual:'Billed annually'};
+
+  cycles.forEach(c => {
+    const btn = document.getElementById('billing-'+c+'-btn');
+    if(!btn) return;
+    const active = c===cycle;
+    btn.style.background = active?'var(--accent)':'var(--surface2)';
+    btn.style.color = active?'#000':'var(--text)';
+    btn.style.borderColor = active?'var(--accent)':'var(--border2)';
+    btn.style.fontWeight = active?'700':'500';
+  });
+
+  const loyaltyDisc = getLoyaltyDiscount();
+  const cycleDisc = discounts[cycle]||0;
+  const totalDisc = Math.min(cycleDisc+loyaltyDisc, 35); // cap at 35%
+
   ['starter','pro','premium'].forEach(plan => {
     const p = PLANS[plan];
     const priceEl = document.getElementById('price-'+plan);
     const subEl = document.getElementById('price-'+plan+'-sub');
     if(!priceEl||!subEl) return;
-    if(cycle==='annual'){
-      const monthly = parseFloat((p.annualPrice/12*(1-disc/100)).toFixed(2));
-      const annual = parseFloat((p.annualPrice*(1-disc/100)).toFixed(0));
-      priceEl.innerHTML = '$'+monthly+'<span style="font-size:14px;color:var(--text2);font-weight:400;">/mo</span>';
-      subEl.textContent = '$'+annual+'/yr — save $'+(p.monthlyPrice*12-p.annualPrice)+' (2 months free)';
+
+    const base = p.monthlyPrice;
+    const discounted = parseFloat((base*(1-totalDisc/100)).toFixed(2));
+    const days = durations[cycle];
+    const totalCharge = parseFloat((discounted*(days/30)).toFixed(2));
+    const savings = parseFloat((base*(days/30) - totalCharge).toFixed(2));
+
+    priceEl.innerHTML = '$'+discounted+'<span style="font-size:14px;color:var(--text2);font-weight:400;">/mo</span>';
+    if(cycle==='monthly'){
+      subEl.textContent = loyaltyDisc>0?'Loyalty discount '+loyaltyDisc+'% applied!':'Billed monthly · cancel anytime';
     } else {
-      const monthly = parseFloat((p.monthlyPrice*(1-disc/100)).toFixed(2));
-      priceEl.innerHTML = '$'+monthly+'<span style="font-size:14px;color:var(--text2);font-weight:400;">/mo</span>';
-      subEl.textContent = disc>0?'Was $'+p.monthlyPrice+' — '+disc+'% loyalty discount!':'Billed monthly · cancel anytime';
+      subEl.textContent = 'Total $'+totalCharge+' · save $'+savings+' ('+totalDisc+'% off)';
     }
   });
 }
@@ -3087,6 +3544,247 @@ function generateTopUpCode(scans){
   return code;
 }
 
+
+
+// ============ RECEIPT VAULT ============
+function renderReceiptVault() {
+  const yr = currentYear;
+  document.getElementById('rv-year').textContent = yr;
+  const search = (document.getElementById('rv-search').value || '').toLowerCase();
+  const catFilter = document.getElementById('rv-cat-filter').value;
+  const sort = document.getElementById('rv-sort').value;
+
+  let items = (expenses[yr] || []).map(e => ({...e}));
+
+  // Filter
+  if(catFilter) items = items.filter(e => e.category === catFilter);
+  if(search) items = items.filter(e =>
+    (e.desc||'').toLowerCase().includes(search) ||
+    (e.category||'').toLowerCase().includes(search) ||
+    (e.receiptDate||e.date||'').includes(search) ||
+    String(e.amount).includes(search)
+  );
+
+  // Sort
+  items.sort((a,b) => {
+    if(sort==='entry-desc') return new Date(b.entryDate||b.date) - new Date(a.entryDate||a.date);
+    if(sort==='entry-asc') return new Date(a.entryDate||a.date) - new Date(b.entryDate||b.date);
+    if(sort==='receipt-desc') return new Date(b.receiptDate||b.date) - new Date(a.receiptDate||a.date);
+    if(sort==='receipt-asc') return new Date(a.receiptDate||a.date) - new Date(b.receiptDate||b.date);
+    if(sort==='amount-desc') return b.amount - a.amount;
+    if(sort==='amount-asc') return a.amount - b.amount;
+    return 0;
+  });
+
+  // Summary bar
+  const total = items.reduce((s,e) => s+e.amount, 0);
+  const withReceipt = items.filter(e => e.receipt).length;
+  document.getElementById('rv-summary-bar').innerHTML =
+    '<div class="tax-stat" style="flex:1;"><div class="tax-stat-label">Showing</div><div class="tax-stat-val">' + items.length + ' receipts</div></div>' +
+    '<div class="tax-stat" style="flex:1;"><div class="tax-stat-label">Total</div><div class="tax-stat-val green">$' + items.reduce((s,e)=>s+e.amount,0).toFixed(2) + '</div></div>' +
+    '<div class="tax-stat" style="flex:1;"><div class="tax-stat-label">With photo</div><div class="tax-stat-val blue">' + withReceipt + '</div></div>' +
+    '<div class="tax-stat" style="flex:1;"><div class="tax-stat-label">No photo</div><div class="tax-stat-val amber">' + (items.length-withReceipt) + '</div></div>';
+
+  // Main list
+  if(!items.length) {
+    document.getElementById('rv-body').innerHTML = '<div class="empty-msg">No receipts found' + (search?' matching "'+search+'"':'') + '</div>';
+  } else {
+    document.getElementById('rv-body').innerHTML = items.map(e => {
+      const entryDate = e.entryDate || e.date || '';
+      const receiptDate = e.receiptDate || e.date || '';
+      const deductible = e.category.includes('Meals') ? e.amount*0.5 : e.amount;
+      return '<div style="display:flex;gap:12px;align-items:flex-start;padding:12px;background:var(--surface2);border-radius:var(--r);margin-bottom:8px;cursor:pointer;" onclick="openRVModal('+e.id+')">' +
+        '<div style="flex-shrink:0;">' +
+          (e.receipt
+            ? '<img src="'+e.receipt+'" style="width:56px;height:56px;object-fit:cover;border-radius:var(--r);border:1px solid var(--border);">'
+            : '<div style="width:56px;height:56px;border-radius:var(--r);border:2px dashed var(--border2);display:flex;align-items:center;justify-content:center;font-size:20px;">📄</div>'
+          ) +
+        '</div>' +
+        '<div style="flex:1;min-width:0;">' +
+          '<div style="font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (e.desc||'No description') + '</div>' +
+          '<div style="font-size:11px;color:var(--text3);margin-top:2px;">' +
+            '<span class="tag" style="font-size:10px;">' + e.category + '</span>' +
+          '</div>' +
+          '<div style="font-size:11px;color:var(--text3);margin-top:4px;">📅 Receipt: ' + receiptDate + ' · Entered: ' + entryDate + '</div>' +
+        '</div>' +
+        '<div style="text-align:right;flex-shrink:0;">' +
+          '<div style="font-weight:800;font-size:16px;font-family:var(--mono);color:var(--text);">$' + e.amount.toFixed(2) + '</div>' +
+          (deductible < e.amount ? '<div style="font-size:11px;color:var(--accent);">$' + deductible.toFixed(2) + ' ded.</div>' : '') +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  // Category totals
+  const cats = {};
+  (expenses[yr]||[]).forEach(e => {
+    if(!cats[e.category]) cats[e.category] = {total:0, count:0, deductible:0};
+    cats[e.category].total += e.amount;
+    cats[e.category].count++;
+    cats[e.category].deductible += e.category.includes('Meals') ? e.amount*0.5 : e.amount;
+  });
+  const grandTotal = Object.values(cats).reduce((s,v)=>s+v.total,0);
+  const grandDed = Object.values(cats).reduce((s,v)=>s+v.deductible,0);
+  let catHtml = '';
+  Object.entries(cats).sort((a,b)=>b[1].total-a[1].total).forEach(([cat,v])=>{
+    const pct = grandTotal>0 ? Math.round((v.total/grandTotal)*100) : 0;
+    catHtml += '<div style="margin-bottom:12px;">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
+        '<span style="font-size:13px;font-weight:600;">' + cat + ' <span style="color:var(--text3);font-weight:400;">(' + v.count + ')</span></span>' +
+        '<div style="text-align:right;">' +
+          '<span style="font-weight:700;font-family:var(--mono);">$' + v.total.toFixed(2) + '</span>' +
+          (v.deductible<v.total ? '<span style="font-size:11px;color:var(--accent);margin-left:6px;">$' + v.deductible.toFixed(2) + ' ded.</span>' : '') +
+        '</div>' +
+      '</div>' +
+      '<div class="progress-bar"><div class="progress-fill" style="width:'+pct+'%"></div></div>' +
+    '</div>';
+  });
+  if(grandTotal>0) {
+    catHtml += '<div style="border-top:2px solid var(--border2);padding-top:12px;margin-top:8px;display:flex;justify-content:space-between;font-weight:800;font-size:16px;">' +
+      '<span>Total</span>' +
+      '<div>' +
+        '<span style="font-family:var(--mono);">$' + grandTotal.toFixed(2) + '</span>' +
+        '<span style="font-size:13px;color:var(--accent);margin-left:10px;">$' + grandDed.toFixed(2) + ' deductible</span>' +
+      '</div>' +
+    '</div>';
+  }
+  document.getElementById('rv-cat-totals').innerHTML = catHtml || '<div class="empty-msg">No expenses yet</div>';
+}
+
+function openRVModal(id) {
+  const yr = currentYear;
+  const e = (expenses[yr]||[]).find(e=>e.id===id);
+  if(!e) return;
+  const entryDate = e.entryDate || e.date || '';
+  const receiptDate = e.receiptDate || e.date || '';
+  const deductible = e.category.includes('Meals') ? e.amount*0.5 : e.amount;
+  document.getElementById('rv-modal-title').textContent = e.desc || 'Receipt detail';
+  document.getElementById('rv-modal-img').innerHTML = e.receipt
+    ? '<img src="'+e.receipt+'" style="width:100%;border-radius:var(--r);border:1px solid var(--border);">'
+    : '<div style="padding:20px;text-align:center;color:var(--text3);background:var(--surface2);border-radius:var(--r);">📄 No photo attached</div>';
+  document.getElementById('rv-modal-body').innerHTML =
+    '<div class="summary-row"><span>Category</span><span class="tag">'+e.category+'</span></div>' +
+    '<div class="summary-row"><span>Amount</span><span style="font-weight:700;font-family:var(--mono);">$'+e.amount.toFixed(2)+'</span></div>' +
+    '<div class="summary-row"><span>Deductible</span><span style="color:var(--accent);font-weight:700;font-family:var(--mono);">$'+deductible.toFixed(2)+'</span></div>' +
+    '<div class="summary-row"><span>Receipt date</span><span>'+receiptDate+'</span></div>' +
+    '<div class="summary-row"><span>Entry date</span><span>'+entryDate+'</span></div>' +
+    '<div class="summary-row"><span>Description</span><span style="color:var(--text2);">'+(e.desc||'—')+'</span></div>' +
+    '<div class="btn-row" style="margin-top:14px;">' +
+      (e.receipt ? '<button class="btn btn-primary" onclick="downloadSingleReceipt('+e.id+')">⬇ Download photo</button>' : '') +
+      '<button class="btn btn-red" onclick="delExpFromVault('+e.id+')">Delete</button>' +
+    '</div>';
+  const modal = document.getElementById('rv-modal');
+  modal.style.display = 'flex';
+  modal.classList.remove('hidden');
+}
+
+function closeRVModal() {
+  const modal = document.getElementById('rv-modal');
+  modal.style.display = 'none';
+  modal.classList.add('hidden');
+}
+
+function delExpFromVault(id) {
+  if(!confirm('Delete this expense?')) return;
+  expenses[currentYear] = (expenses[currentYear]||[]).filter(e=>e.id!==id);
+  saveAll(); renderExpenses(); updateMetrics(); updateTaxDashboard();
+  closeRVModal();
+  renderReceiptVault();
+}
+
+function downloadSingleReceipt(id) {
+  const e = (expenses[currentYear]||[]).find(e=>e.id===id);
+  if(!e||!e.receipt) return;
+  const cat = e.category.replace(/[^a-zA-Z0-9]/g,'_').substring(0,20);
+  const vendor = (e.desc||'Receipt').replace(/[^a-zA-Z0-9]/g,'_').substring(0,20);
+  const a = document.createElement('a');
+  a.href = e.receipt;
+  a.download = 'TaxReceipt_'+currentYear+'_'+cat+'_'+vendor+'_'+(e.receiptDate||e.date)+'.jpg';
+  a.click();
+}
+
+// ============ CALENDAR DATE PICKER ============
+let calTargetId = null;
+let calDate = new Date();
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+
+function openCal(targetId) {
+  calTargetId = targetId;
+  const el = document.getElementById(targetId);
+  const val = el ? el.value : '';
+  calDate = val ? new Date(val+'T12:00:00') : new Date();
+  renderCal();
+  document.getElementById('cal-modal').classList.remove('hidden');
+}
+
+function calClose() {
+  document.getElementById('cal-modal').classList.add('hidden');
+  calTargetId = null;
+}
+
+function calBackdropClick(e) {
+  if(e.target.id === 'cal-modal') calClose();
+}
+
+function calChangeMonth(dir) {
+  calDate = new Date(calDate.getFullYear(), calDate.getMonth() + dir, 1);
+  renderCal();
+}
+
+function calToday() {
+  calDate = new Date();
+  calSelectDay(calDate.getFullYear(), calDate.getMonth(), calDate.getDate());
+}
+
+function calSelectDay(year, month, day) {
+  const d = new Date(year, month, day);
+  const iso = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  if(calTargetId) {
+    const el = document.getElementById(calTargetId);
+    if(el) { el.value = iso; el.dispatchEvent(new Event('change')); }
+  }
+  calClose();
+}
+
+function renderCal() {
+  const year = calDate.getFullYear();
+  const month = calDate.getMonth();
+  const today = new Date();
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const daysInPrev = new Date(year, month, 0).getDate();
+
+  document.getElementById('cal-title').textContent = MONTHS[month] + ' ' + year;
+
+  let html = DAYS.map(d => '<div class="cal-day-name">'+d+'</div>').join('');
+
+  // Previous month days
+  for(let i = firstDay-1; i >= 0; i--) {
+    html += '<div class="cal-day other-month">'+(daysInPrev-i)+'</div>';
+  }
+
+  // Current month days
+  for(let d = 1; d <= daysInMonth; d++) {
+    const isToday = d===today.getDate() && month===today.getMonth() && year===today.getFullYear();
+    const el = calTargetId ? document.getElementById(calTargetId) : null;
+    const selVal = el ? el.value : '';
+    const selDate = selVal ? new Date(selVal+'T12:00:00') : null;
+    const isSelected = selDate && selDate.getDate()===d && selDate.getMonth()===month && selDate.getFullYear()===year;
+    const cls = 'cal-day'+(isToday?' today':'')+(isSelected?' selected':'');
+    html += '<div class="'+cls+'" onclick="calSelectDay('+year+','+month+','+d+')">'+d+'</div>';
+  }
+
+  // Next month padding
+  const total = firstDay + daysInMonth;
+  const remaining = total % 7 === 0 ? 0 : 7 - (total % 7);
+  for(let d = 1; d <= remaining; d++) {
+    html += '<div class="cal-day other-month">'+d+'</div>';
+  }
+
+  document.getElementById('cal-grid').innerHTML = html;
+}
+
 // ============ PIN AUTHENTICATION ============
 function simpleHash(str) {
   let hash = 0;
@@ -3119,7 +3817,8 @@ function verifyPIN() {
   if(!entry || entry.length < 4) return;
   if(simpleHash(entry) === stored) {
     document.getElementById('pin-login-screen').classList.add('hidden');
-    showMain();
+    const hasOnboarded = localStorage.getItem('st_onboarded_'+user.id);
+    if(!hasOnboarded){ showOnboarding(); } else { showMain(); }
   } else {
     document.getElementById('pin-error').textContent = 'Incorrect PIN. Try again.';
     document.getElementById('pin-entry').value = '';
@@ -3292,15 +3991,17 @@ if(saved){
     user=JSON.parse(saved);
     apiKey=localStorage.getItem('st2_key_'+user.id)||'';
     loadAll();
+    document.getElementById('login-screen').classList.add('hidden');
+    const tosOk = localStorage.getItem('st_tos_'+user.id);
+    if(!tosOk){ showTOS(); return; }
     const hasPin=localStorage.getItem('st3_pin_'+user.id);
     if(hasPin){
-      document.getElementById('login-screen').classList.add('hidden');
       document.getElementById('pin-login-screen').classList.remove('hidden');
       document.getElementById('pin-login-name').textContent=user.name+' — '+user.biz;
       document.getElementById('pin-entry').value='';
       setTimeout(()=>document.getElementById('pin-entry').focus(),100);
     } else {
-      showMain();
+      document.getElementById('pin-setup-screen').classList.remove('hidden');
     }
   }catch(e){}
 }
