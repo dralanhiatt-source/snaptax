@@ -4001,7 +4001,7 @@ function importTurboData() {
   renderSummary(); renderYOY();
 }
 
-(function(){const saved=localStorage.getItem('st2_user');
+const saved=localStorage.getItem('st2_user');
 if(saved){
   try{
     user=JSON.parse(saved);
@@ -4020,10 +4020,7 @@ if(saved){
       document.getElementById('pin-setup-screen').classList.remove('hidden');
     }
   }catch(e){}
-}})();
+}
 </script>
 </body>
 </html>
-
-
-
