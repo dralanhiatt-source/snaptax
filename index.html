@@ -1700,7 +1700,7 @@ async function onReceiptFile(input){
     const resp=await fetch('https://snaptax-proxy.dralanhiatt.workers.dev',{
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
-      body:JSON.stringify({model:'claude-opus-4-20250514',max_tokens:500,messages:[{role:'user',content:[
+      body:JSON.stringify({model:'claude-opus-4-8',max_tokens:500,messages:[{role:'user',content:[
         {type:'image',source:{type:'base64',media_type:mt,data:b64}},
         {type:'text',text:'Read this receipt. Respond ONLY in valid JSON no markdown: {"vendor":"","date":"YYYY-MM-DD or empty","amount":"number only","description":"brief description","suggestedCategory":"pick one: Advertising & marketing, Office supplies, Software & subscriptions, Phone & internet, Professional services, Education & training, Meals (50% deductible), Travel & lodging, Equipment & tools, Insurance, Rent & utilities, Bank & finance fees, Vehicle expenses, Repairs & maintenance, Inventory / cost of goods, Wages & contractors, Taxes & licenses, Health insurance (self-employed), Retirement contributions, Other","otherCategories":["2 others"]}'}
       ]}]})
@@ -1740,7 +1740,7 @@ async function onW2File(input){
     const resp=await fetch('https://snaptax-proxy.dralanhiatt.workers.dev',{
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
-      body:JSON.stringify({model:'claude-opus-4-20250514',max_tokens:600,messages:[{role:'user',content:[
+      body:JSON.stringify({model:'claude-opus-4-8',max_tokens:600,messages:[{role:'user',content:[
         {type:'image',source:{type:'base64',media_type:mt,data:b64}},
         {type:'text',text:'This is a W2 tax form. Extract all fields. Respond ONLY in valid JSON no markdown: {"box1_wages":"","box2_federal_withheld":"","box3_ss_wages":"","box4_ss_withheld":"","box5_medicare_wages":"","box6_medicare_withheld":"","box16_state_wages":"","box17_state_withheld":"","employer":"","year":""}. Use numbers only, no dollar signs.'}
       ]}]})
@@ -2551,7 +2551,7 @@ async function onCreditFile(input) {
       method: 'POST',
       headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
       body: JSON.stringify({
-        model: 'claude-opus-4-20250514',
+        model: 'claude-opus-4-8',
         max_tokens: 400,
         messages: [{role:'user', content:[
           {type:'image', source:{type:'base64', media_type:mt, data:b64}},
@@ -3911,7 +3911,7 @@ async function onTurboFile(input) {
       method: 'POST',
       headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
       body: JSON.stringify({
-        model: 'claude-opus-4-20250514',
+        model: 'claude-opus-4-8',
         max_tokens: 800,
         messages: [{role:'user', content:[
           {type:'image', source:{type:'base64', media_type:mt, data:b64}},
@@ -4001,7 +4001,7 @@ function importTurboData() {
   renderSummary(); renderYOY();
 }
 
-const saved=localStorage.getItem('st2_user');
+(function(){const saved=localStorage.getItem('st2_user');
 if(saved){
   try{
     user=JSON.parse(saved);
@@ -4020,7 +4020,7 @@ if(saved){
       document.getElementById('pin-setup-screen').classList.remove('hidden');
     }
   }catch(e){}
-}
+}})();
 </script>
 </body>
 </html>
